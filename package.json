@@ -1,0 +1,20 @@
+{
+  "name": "booran-warranty",
+  "version": "1.0.0",
+  "description": "Booran Warranty Evidence Capture System",
+  "private": true,
+  "scripts": {
+    "install:all": "cd backend/api && npm install && cd ../../frontend/web && npm install",
+    "dev:api": "cd backend/api && npm run dev",
+    "dev:web": "cd frontend/web && npm run dev",
+    "build:api": "cd backend/api && npm run build",
+    "build:web": "cd frontend/web && npm run build",
+    "build:all": "npm run build:api && npm run build:web",
+    "lint:api": "cd backend/api && npm run lint",
+    "lint:web": "cd frontend/web && npm run lint",
+    "lint:all": "npm run lint:api && npm run lint:web"
+  },
+  "dependencies": {
+    "mongodb": "^7.6.0"
+  }
+}

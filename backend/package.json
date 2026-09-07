@@ -1,0 +1,11 @@
+{
+  "name": "backend",
+  "private": true,
+  "scripts": {
+    "dev": "cd api && npm run dev",
+    "start": "cd api && npm run start",
+    "build": "cd api && npm run build",
+    "lint": "cd api && npm run lint",
+    "test": "cd api && npm run test"
+  }
+}
