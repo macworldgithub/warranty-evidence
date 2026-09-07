@@ -6,52 +6,33 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import type { UserRole } from '../../types/auth';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('admin@booran.com');
-  const [password, setPassword] = useState('password123');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('ADMIN');
+  const [password, setPassword] = useState('Password123!');
   const [loading, setLoading] = useState(false);
-
-  const roles: { role: UserRole; title: string; desc: string; badge: 'purple' | 'blue' }[] = [
-    {
-      role: 'ADMIN',
-      title: 'Administrator',
-      desc: 'Full system management, audit logs, user provisioning & global settings',
-      badge: 'purple',
-    },
-    {
-      role: 'OPERATIONS',
-      title: 'Operations Team',
-      desc: 'Manage warranties, dispatch tasks, process claims & manage evidence',
-      badge: 'blue',
-    },
-  ];
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null);
     try {
-      await login({ email, password, role: selectedRole });
+      await login({ email: email.trim(), password });
       router.push('/dashboard');
+    } catch (err) {
+      setErrorMessage((err as Error).message || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickLogin = async (role: UserRole) => {
-    setSelectedRole(role);
-    setLoading(true);
-    try {
-      await login({ email: `${role.toLowerCase()}@booran.com`, role });
-      router.push('/dashboard');
-    } finally {
-      setLoading(false);
-    }
+  const fillCredentials = (userEmail: string) => {
+    setEmail(userEmail);
+    setPassword('Password123!');
+    setErrorMessage(null);
   };
 
   return (
@@ -64,90 +45,72 @@ export default function LoginPage() {
           Booran Warranty System
         </h1>
         <p className="mt-2 text-sm text-slate-300">
-          Unified RBAC Web Portal • Single Sign-On
+          Supabase Authentication • Unified RBAC Web Portal
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="bg-white/95 backdrop-blur-md shadow-2xl border-white/20">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
-                Select Persona (Role-Based Access)
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                {roles.map((item) => (
-                  <button
-                    type="button"
-                    key={item.role}
-                    onClick={() => {
-                      setSelectedRole(item.role);
-                      setEmail(`${item.role.toLowerCase()}@booran.com`);
-                    }}
-                    className={`
-                      p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between
-                      ${
-                        selectedRole === item.role
-                          ? 'border-primary bg-blue-50/70 ring-2 ring-primary/20 shadow-xs'
-                          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-slate-900">{item.title}</span>
-                      <Badge variant={item.badge} size="sm">
-                        {item.role}
-                      </Badge>
-                    </div>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{item.desc}</p>
-                  </button>
-                ))}
-              </div>
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{errorMessage}</span>
             </div>
+          )}
 
-            <div className="pt-2 border-t border-slate-100">
-              <Input
-                label="Email address"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@booran.com"
+              required
+              autoComplete="email"
+            />
 
             <Input
               label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
               required
+              autoComplete="current-password"
             />
 
-            <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
-              Sign In as {selectedRole}
-            </Button>
+            <div className="pt-2">
+              <Button type="submit" variant="primary" className="w-full" isLoading={loading}>
+                Sign In
+              </Button>
+            </div>
           </form>
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500 mb-3 font-medium">Quick 1-Click Persona Login:</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {roles.map((r) => (
-                <Button
-                  key={r.role}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleQuickLogin(r.role)}
-                  className="text-xs"
-                >
-                  Log in as {r.role}
-                </Button>
-              ))}
+            <p className="text-xs text-slate-500 mb-2 font-medium">Development Quick Fill:</p>
+            <div className="flex gap-2 justify-center">
+              <button
+                type="button"
+                onClick={() => fillCredentials('admin@booran.com')}
+                className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Admin (admin@booran.com)
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('ops@booran.com')}
+                className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                Operations (ops@booran.com)
+              </button>
             </div>
           </div>
         </Card>
 
         <p className="text-center text-xs text-slate-400 mt-6">
-          Booran Warranty Evidence Capture System • Phase 1
+          Booran Warranty Evidence Capture System • Phase 2 Auth
         </p>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { getSupabaseClient } from './supabase/client';
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
@@ -6,7 +8,10 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   message?: string;
   timestamp?: string;
-  error?: string;
+  error?: {
+    code: string;
+    message: string;
+  };
 }
 
 export class ApiError extends Error {
@@ -43,7 +48,21 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     }
   }
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('booran_auth_token') : null;
+  let token: string | null = null;
+  if (typeof window !== 'undefined') {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        token = data?.session?.access_token ?? null;
+      } catch {
+        // Fallback below
+      }
+    }
+    if (!token) {
+      token = localStorage.getItem('booran_auth_token');
+    }
+  }
 
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -65,11 +84,12 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     } catch {
       errorData = null;
     }
-    throw new ApiError(
-      (errorData as { message?: string })?.message || `HTTP ${response.status} error`,
-      response.status,
-      errorData,
-    );
+    const message =
+      (errorData as { error?: { message?: string }; message?: string })?.error?.message ||
+      (errorData as { message?: string })?.message ||
+      `HTTP ${response.status} error`;
+
+    throw new ApiError(message, response.status, errorData);
   }
 
   return response.json() as Promise<T>;

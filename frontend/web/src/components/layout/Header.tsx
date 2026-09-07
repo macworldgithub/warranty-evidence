@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import type { UserRole } from '../../types/auth';
 import { Badge } from '../ui/Badge';
 
 interface HeaderProps {
@@ -11,21 +10,13 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const { user, role, logout, switchRole } = useAuth();
+  const { user, role, logout } = useAuth();
   const router = useRouter();
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const availableRoles: UserRole[] = ['ADMIN', 'OPERATIONS'];
 
   const handleLogout = () => {
     logout();
     router.push('/login');
-  };
-
-  const handleRoleSelect = (newRole: UserRole) => {
-    switchRole(newRole);
-    setShowRoleMenu(false);
   };
 
   return (
@@ -61,44 +52,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
-      {/* Actions & Role Switcher */}
+      {/* Actions */}
       <div className="flex items-center gap-3 ml-auto">
-        {/* Interactive Role Switcher for Phase 1 testing */}
-        <div className="relative">
-          <button
-            onClick={() => setShowRoleMenu((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 cursor-pointer"
-            title="Switch user role for testing"
-          >
-            <span className="text-slate-400">Role:</span>
-            <span className="font-semibold text-primary">{role}</span>
-            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-
-          {showRoleMenu && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-              <div className="px-3 py-2 border-b border-slate-100">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                  Switch Active Role (RBAC)
-                </p>
-              </div>
-              {availableRoles.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => handleRoleSelect(r)}
-                  className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-slate-50 cursor-pointer ${
-                    role === r ? 'font-bold text-primary bg-blue-50/50' : 'text-slate-700'
-                  }`}
-                >
-                  <span>{r}</span>
-                  {role === r && <span className="text-primary font-bold">✓</span>}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* Notifications Icon */}
         <button

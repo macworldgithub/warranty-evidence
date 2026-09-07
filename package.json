@@ -12,7 +12,9 @@
     "build:all": "npm run build:api && npm run build:web",
     "lint:api": "cd backend/api && npm run lint",
     "lint:web": "cd frontend/web && npm run lint",
-    "lint:all": "npm run lint:api && npm run lint:web"
+    "lint:all": "npm run lint:api && npm run lint:web",
+    "test:db": "cd backend/api && npm run test:db",
+    "create:account": "cd backend/api && npm run create:account"
   },
   "dependencies": {
     "mongodb": "^7.6.0"

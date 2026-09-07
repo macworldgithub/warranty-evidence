@@ -4,47 +4,59 @@
 
 The Booran Warranty Evidence Capture System is a multi-tier platform consisting of:
 
-- **One unified Next.js web application** (`frontend/web`) with Role-Based Access Control (RBAC)
-- **One NestJS REST API backend** (`backend/api`)
-- **MongoDB database** (MongoDB Atlas with Mongoose ODM)
-- **Future mobile application** (`mobile/` for iOS/Android evidence capture)
+- **Authentication & Sessions**: **Supabase Auth**
+- **Application Database**: **MongoDB Atlas** (with Mongoose ODM)
+- **Business Logic & Authorization/RBAC**: **NestJS REST API** (`backend/api`)
+- **Web Portal**: **Single Unified Next.js Web Portal** (`frontend/web`)
+- **Future Mobile Application**: **React Native / Expo** (`mobile/`) consuming the same NestJS API
 
-All frontend clients communicate with the backend exclusively through REST APIs. There is no shared server-side code between frontend and backend.
+> [!NOTE]
+> **Supabase is used for Authentication only** (password security, JWT token issuance, session refresh). Supabase is **NOT** the primary application database. MongoDB Atlas remains the system of record for application users, warranties, cases, and evidence.
 
-## System Architecture
+---
 
+## Authentication & Authorization Architecture
+
+```text
+                    ┌─────────────────────┐
+                    │   Next.js Web App   │
+                    │   Single Portal     │
+                    └──────────┬──────────┘
+                               │
+                               │ 1. Login (Email + Password)
+                               ▼
+                    ┌─────────────────────┐
+                    │    Supabase Auth    │
+                    │                     │
+                    │ Authentication      │
+                    │ Sessions            │
+                    │ Password Security   │
+                    └──────────┬──────────┘
+                               │
+                               │ 2. Issues Supabase Access Token (JWT)
+                               ▼
+                    ┌─────────────────────┐
+                    │    NestJS API       │
+                    │    Port: 4000       │
+                    │                     │
+                    │ Verify Supabase JWT │
+                    │ SupabaseAuthGuard   │
+                    │ PermissionsGuard    │
+                    └──────────┬──────────┘
+                               │
+                               │ 3. Fetch user role & permissions
+                               ▼
+                    ┌─────────────────────┐
+                    │    MongoDB Atlas    │
+                    │                     │
+                    │ Application Users   │
+                    │ Role: ADMIN / OPS   │
+                    │ Status: ACTIVE      │
+                    │ Warranties, Cases   │
+                    └─────────────────────┘
 ```
-┌────────────────────────────────────────────────────────┐     ┌─────────────────────┐
-│             Unified Web Portal (Next.js)              │     │  Mobile App         │
-│             frontend/web                              │     │  (Future)           │
-│             Port: 3000                                │     │                     │
-│  [ADMIN]  [OPERATIONS]                                │     │                     │
-└───────────────────────────┬────────────────────────────┘     └──────────┬──────────┘
-                            │                                             │
-                            │             REST API (HTTP/HTTPS)           │
-                            ▼                                             ▼
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                             NestJS REST API                                      │
-│                             Port: 4000                                           │
-│                             Prefix: /api/v1                                      │
-│                                                                                  │
-│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐               │
-│   │  Auth    │ │  Users   │ │Warranties│ │  Cases   │ │ Evidence │               │
-│   │ Module   │ │ Module   │ │ Module   │ │ Module   │ │ Module   │               │
-│   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘               │
-│   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐               │
-│   │ Reviews  │ │  Tasks   │ │  Notif.  │ │ Reports  │ │  Audit   │               │
-│   │ Module   │ │ Module   │ │ Module   │ │ Module   │ │ Module   │               │
-│   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘               │
-└────────────────────────────────────┬─────────────────────────────────────────────┘
-                                     │
-                                     │  Mongoose ODM
-                                     ▼
-                        ┌─────────────────────────┐
-                        │     MongoDB Atlas       │
-                        │                         │
-                        └─────────────────────────┘
-```
+
+---
 
 ## RBAC Model & Roles
 
@@ -55,32 +67,48 @@ The system operates with strictly **TWO** primary roles:
 | **ADMIN** | System Administrators | Dashboard, Users, Warranties, Cases, Evidence, Reviews, Tasks, Reports, Audit Logs, Settings | Full administrative management, user provisioning, global settings, audit inspection |
 | **OPERATIONS** | Warranty & Dispatch Ops | Dashboard, Warranties, Cases, Evidence, Reviews, Tasks | Warranty policy creation, claims processing, technician task dispatching |
 
+---
 
-## Application Structure
+## Authenticated User Flow
 
-### Unified Web Application (`frontend/web`)
+```text
+1. User enters Email and Password on /login
+2. Supabase Auth authenticates credentials and returns an Access Token (JWT)
+3. Frontend attaches token: Authorization: Bearer <access_token>
+4. NestJS SupabaseAuthGuard verifies the JWT token
+5. Extracts supabaseUserId and queries MongoDB for the application user
+6. Verifies status === 'ACTIVE' (rejects INACTIVE or SUSPENDED users with 401)
+7. Reads role (ADMIN vs OPERATIONS) from MongoDB (source of truth)
+8. Computes granular permissions for the user
+9. PermissionsGuard enforces @RequirePermissions(...) on protected endpoints
+10. Frontend receives user profile from GET /api/v1/auth/me and updates AppShell navigation
+```
 
-- **Port:** 3000
-- **AppShell:** Shared Header, dynamic Sidebar, and Content view.
-- **Routing:** Centralized `/dashboard` route dynamically adapts to current user role.
-- **Security:** `ProtectedRoute` and `PermissionGate` protect unauthorized routes (403 Forbidden).
-
-### Backend API (`backend/api`)
-
-- **Port:** 4000
-- **API Prefix:** `/api/v1`
-- **Database:** MongoDB Atlas via `@nestjs/mongoose`
-- **Health Check:** `GET /api/v1/health`
+---
 
 ## Environment Configuration
 
-| Variable | Application | Description |
-|---|---|---|
-| `NODE_ENV` | Backend | Environment (development/production) |
-| `PORT` | Backend | API server port (default 4000) |
-| `MONGODB_URI` | Backend | MongoDB Atlas connection string |
-| `FRONTEND_WEB_URL` | Backend | Web portal URL for CORS (default http://localhost:3000) |
-| `NEXT_PUBLIC_API_URL` | Frontend | Backend API base URL (default http://localhost:4000/api/v1) |
+### Backend (`backend/api/.env`)
+| Variable | Description |
+|---|---|
+| `NODE_ENV` | Environment (`development` / `production`) |
+| `PORT` | API server port (default `4000`) |
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `SUPABASE_URL` | Supabase project URL (`https://<project-ref>.supabase.co`) |
+| `SUPABASE_ANON_KEY` | Supabase anonymous API key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service-role key (NEVER expose to frontend) |
+| `FRONTEND_WEB_URL` | Web portal URL for CORS (default `http://localhost:3000`) |
+| `SEED_ADMIN_EMAIL` | Development seed admin email (`admin@booran.com`) |
+| `SEED_OPERATIONS_EMAIL` | Development seed operations email (`ops@booran.com`) |
+
+### Frontend (`frontend/web/.env.local`)
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous public key |
+| `NEXT_PUBLIC_API_URL` | Backend REST API URL (`http://localhost:4000/api/v1`) |
+
+---
 
 ## Directory Structure
 
@@ -89,34 +117,57 @@ booran/
 ├── backend/
 │   ├── api/
 │   │   ├── src/
-│   │   │   ├── main.ts
-│   │   │   ├── app.module.ts
-│   │   │   ├── common/          # Shared utilities, filters, interfaces
-│   │   │   ├── config/          # App configuration
-│   │   │   ├── database/        # MongoDB/Mongoose setup
-│   │   │   └── modules/         # Business modules (Phase 2+)
+│   │   │   ├── auth/
+│   │   │   │   ├── guards/
+│   │   │   │   │   ├── supabase-auth.guard.ts
+│   │   │   │   │   └── permissions.guard.ts
+│   │   │   │   ├── decorators/
+│   │   │   │   │   ├── current-user.decorator.ts
+│   │   │   │   │   └── require-permissions.decorator.ts
+│   │   │   │   ├── auth.service.ts
+│   │   │   │   ├── auth.controller.ts
+│   │   │   │   └── auth.module.ts
+│   │   │   ├── users/
+│   │   │   │   ├── schemas/
+│   │   │   │   │   └── user.schema.ts
+│   │   │   │   ├── users.service.ts
+│   │   │   │   ├── users.controller.ts
+│   │   │   │   └── users.module.ts
+│   │   │   ├── database/
+│   │   │   │   ├── database.module.ts
+│   │   │   │   └── seed.ts
+│   │   │   ├── common/
+│   │   │   └── main.ts
 │   │   ├── .env
-│   │   ├── .env.example
 │   │   └── package.json
-│   └── package.json             # Backend script delegation
+│   └── package.json
 │
 ├── frontend/
-│   ├── web/                     # Unified RBAC Web Portal
+│   ├── web/
 │   │   ├── src/
-│   │   │   ├── app/             # Next.js App Router (dashboard, users, etc.)
-│   │   │   ├── components/      # Shared AppShell, UI, Auth gates
-│   │   │   ├── context/         # AuthContext
-│   │   │   ├── lib/             # Permissions, Navigation, API client
-│   │   │   └── types/           # RBAC & User types
+│   │   │   ├── app/
+│   │   │   │   ├── login/
+│   │   │   │   ├── dashboard/
+│   │   │   │   └── ... (users, warranties, cases, etc.)
+│   │   │   ├── components/
+│   │   │   │   ├── layout/ (AppShell, Sidebar, Header)
+│   │   │   │   ├── auth/ (ProtectedRoute, PermissionGate)
+│   │   │   │   └── ui/
+│   │   │   ├── context/
+│   │   │   │   └── AuthContext.tsx
+│   │   │   ├── lib/
+│   │   │   │   ├── supabase/client.ts
+│   │   │   │   ├── api.ts
+│   │   │   │   └── permissions.ts
+│   │   │   └── types/
 │   │   ├── .env.local
-│   │   ├── .env.example
 │   │   └── package.json
-│   └── package.json             # Frontend script delegation
+│   └── package.json
 │
 ├── docs/
 │   └── ARCHITECTURE.md
 │
 ├── .gitignore
 ├── README.md
-└── package.json                 # Root script runner
+└── package.json
 ```
