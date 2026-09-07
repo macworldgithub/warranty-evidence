@@ -89,21 +89,39 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500 mb-2 font-medium">Development Quick Fill:</p>
-            <div className="flex gap-2 justify-center">
+            <p className="text-xs text-slate-500 mb-2 font-medium">Quick Credentials:</p>
+            <div className="grid grid-cols-2 gap-2 text-left">
+              <button
+                type="button"
+                onClick={() => fillCredentials('abdulahadnauman10@gmail.com')}
+                className="p-2 rounded-lg border border-purple-200 bg-purple-50/50 text-slate-800 hover:bg-purple-50 cursor-pointer text-xs"
+              >
+                <span className="font-bold text-purple-700 block">Admin (Ahad)</span>
+                <span className="text-[10px] text-slate-500 truncate block">abdulahadnauman10@gmail.com</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('abdulahad.operations@gmail.com')}
+                className="p-2 rounded-lg border border-blue-200 bg-blue-50/50 text-slate-800 hover:bg-blue-50 cursor-pointer text-xs"
+              >
+                <span className="font-bold text-blue-700 block">Operations (Ahad)</span>
+                <span className="text-[10px] text-slate-500 truncate block">abdulahad.operations@gmail.com</span>
+              </button>
               <button
                 type="button"
                 onClick={() => fillCredentials('admin@booran.com')}
-                className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="p-2 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 hover:bg-slate-50 cursor-pointer text-xs"
               >
-                Admin (admin@booran.com)
+                <span className="font-bold text-slate-700 block">Admin (Demo)</span>
+                <span className="text-[10px] text-slate-500 truncate block">admin@booran.com</span>
               </button>
               <button
                 type="button"
                 onClick={() => fillCredentials('ops@booran.com')}
-                className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="p-2 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 hover:bg-slate-50 cursor-pointer text-xs"
               >
-                Operations (ops@booran.com)
+                <span className="font-bold text-slate-700 block">Operations (Demo)</span>
+                <span className="text-[10px] text-slate-500 truncate block">ops@booran.com</span>
               </button>
             </div>
           </div>

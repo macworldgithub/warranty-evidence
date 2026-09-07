@@ -9,6 +9,7 @@ interface ModalProps {
   description?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -26,8 +27,10 @@ export function Modal({
   description,
   children,
   footer,
+  size,
   maxWidth = 'md',
 }: ModalProps) {
+  const effectiveWidth = size || maxWidth;
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -47,7 +50,7 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className={`w-full ${maxWidthClasses[maxWidth]} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150`}
+        className={`w-full ${maxWidthClasses[effectiveWidth]} bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150`}
         onClick={(e) => e.stopPropagation()}
       >
         {(title || description) && (

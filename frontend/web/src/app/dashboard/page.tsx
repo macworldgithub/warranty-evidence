@@ -1,176 +1,386 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
+import { StatCard } from '../../components/ui/StatCard';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
-import { EmptyState } from '../../components/ui/EmptyState';
+import { mockCases, mockReviews, mockTasks, mockAuditLogs } from '../../lib/mock';
 
 export default function DashboardPage() {
-  const { user, role, switchRole } = useAuth();
+  const { user, role } = useAuth();
 
   return (
     <ProtectedRoute requiredPermission="dashboard.view">
       <AppShell>
         <div className="space-y-6">
           {/* Welcome Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl text-white shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 rounded-2xl text-white shadow-sm">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-xs uppercase tracking-widest text-blue-400 font-semibold">
                   Dashboard Overview
                 </span>
                 <span className="text-slate-500">•</span>
                 <span className="text-xs text-slate-300">
-                  Role: <span className="font-bold text-white">{role}</span>
+                  Active Role: <span className="font-bold text-white">{role}</span>
                 </span>
               </div>
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-2xl font-extrabold tracking-tight">
                 Welcome back, {user?.firstName} {user?.lastName}
               </h1>
-              <p className="text-sm text-slate-300 mt-1 max-w-xl">
-                Booran Warranty Evidence Capture System. Your permissions and modules are automatically tailored to your role.
+              <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
+                Booran Warranty Evidence Capture System. Modules, queues, and statistics are dynamically tailored to your permission profile.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="blue" size="md">
-                Active Session
-              </Badge>
+              <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Live Session
+              </span>
             </div>
           </div>
 
-          {/* Role-Specific Metric Cards & Widgets */}
+          {/* Role-Specific Dashboard Views */}
           {role === 'ADMIN' && <AdminDashboardView />}
           {role === 'OPERATIONS' && <OperationsDashboardView />}
-
-          {/* System Foundation Status */}
-          <Card title="Foundation Architecture Status" description="Core system configuration and RBAC status">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                <p className="text-xs text-slate-500 font-medium">Backend API</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-semibold text-slate-900">NestJS REST (Healthy)</span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-2">Port: 4000 • Global Prefix: /api/v1</p>
-              </div>
-
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                <p className="text-xs text-slate-500 font-medium">Database Layer</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-semibold text-slate-900">MongoDB Atlas (Connected)</span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-2">Mongoose ODM initialized</p>
-              </div>
-
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                <p className="text-xs text-slate-500 font-medium">Frontend Architecture</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-sm font-semibold text-slate-900">Next.js 16 (Unified RBAC)</span>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-2">Single AppShell • 2 Roles (ADMIN & OPERATIONS)</p>
-              </div>
-            </div>
-          </Card>
         </div>
       </AppShell>
     </ProtectedRoute>
   );
 }
 
-// ─── Role View Components ──────────────────────────────────────────────
+// ─── ADMIN DASHBOARD VIEW ──────────────────────────────────────────────
 
 function AdminDashboardView() {
-  const stats = [
-    { label: 'Total Users', value: '24', icon: '👥', change: '+3 this month' },
-    { label: 'Active Warranties', value: '142', icon: '🛡️', change: '8 expiring soon' },
-    { label: 'Open Cases', value: '38', icon: '📁', change: '12 high priority' },
-    { label: 'Pending Reviews', value: '15', icon: '✍️', change: 'Requires approval' },
-  ];
+  const recentCases = mockCases.slice(0, 4);
+  const pendingReviews = mockReviews.filter((r) => r.status === 'PENDING').slice(0, 3);
+  const recentAudit = mockAuditLogs.slice(0, 4);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <Card key={s.label} className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl">{s.icon}</span>
-              <Badge variant="purple" size="sm">Admin</Badge>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 mt-2">{s.value}</p>
-            <p className="text-xs font-semibold text-slate-600 mt-0.5">{s.label}</p>
-            <p className="text-[11px] text-slate-400 mt-2">{s.change}</p>
-          </Card>
-        ))}
+      {/* 6 Key Executive KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <StatCard
+          label="Total Users"
+          value="6"
+          icon="👥"
+          change="+2 new"
+          trend="up"
+          badgeText="Users"
+          badgeVariant="purple"
+        />
+        <StatCard
+          label="Active Policies"
+          value="1,420"
+          icon="🛡️"
+          change="+14.8% MoM"
+          trend="up"
+          badgeText="Warranty"
+          badgeVariant="blue"
+        />
+        <StatCard
+          label="Open Claims"
+          value="38"
+          icon="📁"
+          change="5 urgent"
+          trend="down"
+          badgeText="Claims"
+          badgeVariant="yellow"
+        />
+        <StatCard
+          label="Pending Evidence"
+          value="11"
+          icon="📸"
+          change="3 awaiting capture"
+          badgeText="Evidence"
+          badgeVariant="gray"
+        />
+        <StatCard
+          label="Review Queue"
+          value="4"
+          icon="✍️"
+          change="Action required"
+          trend="up"
+          badgeText="Reviews"
+          badgeVariant="red"
+        />
+        <StatCard
+          label="Active Tasks"
+          value="19"
+          icon="✅"
+          change="92% on schedule"
+          trend="up"
+          badgeText="Operations"
+          badgeVariant="green"
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="User Management & Audit" description="Recent administrative events">
-          <EmptyState
-            title="Audit trail initialized"
-            description="System events and user activity will be logged here once Phase 2 User Management is active."
-          />
-        </Card>
+      {/* Main Administrative Grids */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Cases */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card
+            title="Recent Warranty Defect Claims"
+            description="Latest cases submitted by dealerships awaiting processing"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <tr>
+                    <th className="pb-2">Case #</th>
+                    <th className="pb-2">Vehicle / Customer</th>
+                    <th className="pb-2">Priority</th>
+                    <th className="pb-2">Status</th>
+                    <th className="pb-2 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentCases.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 font-semibold text-slate-900">
+                        <Link href={`/cases/${c.id}`} className="text-primary hover:underline">
+                          {c.caseNumber}
+                        </Link>
+                      </td>
+                      <td className="py-3">
+                        <p className="font-medium text-slate-800">{c.customerName}</p>
+                        <p className="text-[11px] text-slate-400 truncate max-w-xs">{c.vehicleSummary}</p>
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.priority} />
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.status} />
+                      </td>
+                      <td className="py-3 text-right">
+                        <Link href={`/cases/${c.id}`}>
+                          <Button variant="outline" size="sm">View</Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+              <Link href="/cases" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                View all cases ➔
+              </Link>
+            </div>
+          </Card>
 
-        <Card title="Quick Administrative Actions" description="Fast-track administrative functions">
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="justify-start text-xs py-3">
-              ➕ Provision User
-            </Button>
-            <Button variant="outline" className="justify-start text-xs py-3">
-              🛡️ Warranty Policies
-            </Button>
-            <Button variant="outline" className="justify-start text-xs py-3">
-              📊 Export System Report
-            </Button>
-            <Button variant="outline" className="justify-start text-xs py-3">
-              ⚙️ System Settings
-            </Button>
-          </div>
-        </Card>
+          {/* Quick Administrative Shortcuts */}
+          <Card title="Quick Administrative Actions" description="Fast-track portal operations">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Link href="/users">
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
+                  ➕ Add User
+                </Button>
+              </Link>
+              <Link href="/warranties">
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
+                  🛡️ New Warranty
+                </Button>
+              </Link>
+              <Link href="/reports">
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
+                  📊 View Reports
+                </Button>
+              </Link>
+              <Link href="/audit-logs">
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
+                  📋 Audit Trail
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+
+        {/* Side Column: Reviews & Audit */}
+        <div className="space-y-6">
+          {/* Pending Reviews Queue */}
+          <Card title="Pending Review Queue" description="Evidence awaiting administrative sign-off">
+            <div className="space-y-3">
+              {pendingReviews.map((rev) => (
+                <div key={rev.id} className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-primary">{rev.caseNumber}</span>
+                    <StatusBadge status={rev.status} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 mt-1">{rev.evidenceRequirement}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Submitted by {rev.submittedBy}</p>
+                  <div className="mt-2 pt-2 border-t border-slate-200/50 flex justify-end">
+                    <Link href={`/reviews/${rev.id}`}>
+                      <Button variant="primary" size="sm" className="text-[11px] py-1 px-2.5">Review</Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-2 border-t border-slate-100">
+              <Link href="/reviews" className="text-xs font-semibold text-primary hover:underline">
+                View review queue ➔
+              </Link>
+            </div>
+          </Card>
+
+          {/* Recent Audit Log Activity */}
+          <Card title="Recent Activity Trail" description="Live audit events">
+            <div className="space-y-3">
+              {recentAudit.map((log) => (
+                <div key={log.id} className="text-xs pb-2 border-b border-slate-100 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="font-semibold text-slate-700">{log.userName}</span>
+                    <span>{log.timestamp.split(' ')[1]}</span>
+                  </div>
+                  <p className="text-slate-600 mt-0.5">{log.description}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-2 border-t border-slate-100">
+              <Link href="/audit-logs" className="text-xs font-semibold text-primary hover:underline">
+                Full audit log ➔
+              </Link>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
 
+// ─── OPERATIONS DASHBOARD VIEW ──────────────────────────────────────────
+
 function OperationsDashboardView() {
-  const stats = [
-    { label: 'Active Cases', value: '29', icon: '📁', color: 'blue' },
-    { label: 'Assigned Warranties', value: '88', icon: '🛡️', color: 'green' },
-    { label: 'Evidence Needed', value: '11', icon: '📸', color: 'yellow' },
-    { label: 'Dispatch Tasks', value: '19', icon: '✅', color: 'blue' },
-  ];
+  const activeCases = mockCases.filter((c) => c.status !== 'CLOSED');
+  const myTasks = mockTasks.filter((t) => t.status !== 'COMPLETED');
 
   return (
     <div className="space-y-6">
+      {/* Operations Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((s) => (
-          <Card key={s.label} className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl">{s.icon}</span>
-              <Badge variant="blue" size="sm">Ops</Badge>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 mt-2">{s.value}</p>
-            <p className="text-xs font-semibold text-slate-600 mt-0.5">{s.label}</p>
-            <p className="text-[11px] text-slate-400 mt-2">Operational pipeline</p>
-          </Card>
-        ))}
+        <StatCard
+          label="Active Claims"
+          value="4"
+          icon="📁"
+          change="2 urgent attention"
+          trend="down"
+          badgeText="Active"
+          badgeVariant="blue"
+        />
+        <StatCard
+          label="Evidence Pending Capture"
+          value="3"
+          icon="📸"
+          change="Photos & scans needed"
+          badgeText="Action"
+          badgeVariant="yellow"
+        />
+        <StatCard
+          label="Reviews Awaiting Sign-Off"
+          value="3"
+          icon="✍️"
+          change="Submitted to queue"
+          badgeText="Queue"
+          badgeVariant="purple"
+        />
+        <StatCard
+          label="Assigned Tasks"
+          value="4"
+          icon="✅"
+          change="1 due today"
+          trend="up"
+          badgeText="Dispatch"
+          badgeVariant="green"
+        />
       </div>
 
-      <Card title="Active Operations Queue" description="Warranty claims awaiting processing">
-        <EmptyState
-          title="Operations queue clear"
-          description="New warranty claims submitted by dealerships and customers will appear here."
-          actionLabel="Create New Case"
-          onAction={() => alert('Phase 2: Case creation will be available next')}
-        />
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Active Claims Queue */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card title="Active Operational Claims" description="Claims currently undergoing diagnosis and parts allocation">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <tr>
+                    <th className="pb-2">Case #</th>
+                    <th className="pb-2">Issue / Defect</th>
+                    <th className="pb-2">Priority</th>
+                    <th className="pb-2">Status</th>
+                    <th className="pb-2 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {activeCases.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 font-semibold text-slate-900">
+                        <Link href={`/cases/${c.id}`} className="text-primary hover:underline">
+                          {c.caseNumber}
+                        </Link>
+                      </td>
+                      <td className="py-3">
+                        <p className="font-semibold text-slate-800">{c.title}</p>
+                        <p className="text-[11px] text-slate-400 truncate max-w-sm">{c.vehicleSummary}</p>
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.priority} />
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.status} />
+                      </td>
+                      <td className="py-3 text-right">
+                        <Link href={`/cases/${c.id}`}>
+                          <Button variant="outline" size="sm">Workspace</Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+              <Link href="/cases">
+                <Button variant="primary" size="sm">➕ Create New Case</Button>
+              </Link>
+              <Link href="/cases" className="text-xs font-semibold text-primary hover:underline">
+                View all cases ➔
+              </Link>
+            </div>
+          </Card>
+        </div>
+
+        {/* Operational Tasks Checklist */}
+        <div className="space-y-6">
+          <Card title="My Operational Tasks" description="Checklist of investigation & dispatch tasks">
+            <div className="space-y-3">
+              {myTasks.map((t) => (
+                <div key={t.id} className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-primary">{t.caseNumber}</span>
+                    <StatusBadge status={t.priority} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 mt-1">{t.title}</p>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2">
+                    <span>Due: {t.dueDate}</span>
+                    <StatusBadge status={t.status} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <Link href="/tasks" className="text-xs font-semibold text-primary hover:underline">
+                View all tasks ➔
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

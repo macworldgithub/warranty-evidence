@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="antialiased min-h-screen">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="antialiased min-h-screen" suppressHydrationWarning>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

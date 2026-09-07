@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { User, UserRole, AuthState } from '../types/auth';
 import type { Permission } from '../types/permissions';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase/client';
-import { DEMO_USERS, getStoredUser, setStoredUser, getUserWithPermissions } from '../lib/auth';
+import { DEMO_USERS, getStoredUser, setStoredUser, getUserWithPermissions, lookupKnownRole } from '../lib/auth';
 import { hasPermission as checkPermission, getPermissionsForRole } from '../lib/permissions';
 import { api } from '../lib/api';
 
@@ -42,9 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Fetch profile from NestJS API using current access token
     const loadUserProfile = async () => {
+      let session: Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session'] = null;
       try {
         const { data: sessionData } = await supabase.auth.getSession();
-        const session = sessionData.session;
+        session = sessionData?.session ?? null;
 
         if (!session?.access_token) {
           if (isMounted) {
@@ -97,20 +98,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         console.warn('Could not fetch user profile from NestJS /auth/me:', err);
-        // If API fails or user not found, fallback to stored user or clear session
-        if (isMounted) {
+        // If API fails or user not found, fallback to Supabase session metadata or verified role lookup
+        if (isMounted && session?.user) {
+          const userMeta = session.user.user_metadata;
+          const roleToUse = lookupKnownRole(session.user.email || '', userMeta?.role);
+          const fallbackUser: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            firstName: userMeta?.firstName || (session.user.email ? session.user.email.split('@')[0] : 'User') || 'User',
+            lastName: userMeta?.lastName || '',
+            role: roleToUse,
+          };
+          setStoredUser(fallbackUser);
+          setState({
+            user: fallbackUser,
+            role: roleToUse,
+            permissions: getPermissionsForRole(roleToUse),
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } else if (isMounted) {
           const stored = getStoredUser();
           if (stored) {
             setState({
               ...getUserWithPermissions(stored),
-              isLoading: false,
-            });
-          } else {
-            setState({
-              user: null,
-              role: null,
-              permissions: [],
-              isAuthenticated: false,
               isLoading: false,
             });
           }
@@ -166,7 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (data.session) {
           localStorage.setItem('booran_auth_token', data.session.access_token);
 
-          // Fetch MongoDB application user & role from NestJS backend
+          let appUser: User | null = null;
+          let roleToUse: UserRole | null = null;
+
           try {
             interface LoginProfileResponse {
               success: boolean;
@@ -184,25 +197,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const response = await api.get<LoginProfileResponse>('/auth/me');
 
             if (response.data) {
-              const appUser: User = {
+              roleToUse = response.data.role;
+              appUser = {
                 id: response.data.id,
                 email: response.data.email,
                 firstName: response.data.firstName,
                 lastName: response.data.lastName,
                 role: response.data.role,
               };
-              setStoredUser(appUser);
-              setState({
-                user: appUser,
-                role: response.data.role,
-                permissions: response.data.permissions,
-                isAuthenticated: true,
-                isLoading: false,
-              });
-              return;
             }
           } catch (err) {
             console.warn('Failed to fetch /auth/me after login:', err);
+          }
+
+          // If NestJS API is temporarily offline, derive verified role from Supabase user_metadata
+          if (!appUser && data.user) {
+            const userMeta = data.user.user_metadata;
+            roleToUse = lookupKnownRole(data.user.email || email.trim(), userMeta?.role);
+            appUser = {
+              id: data.user.id,
+              email: data.user.email || email.trim(),
+              firstName: userMeta?.firstName || (email.split('@')[0] ?? 'User'),
+              lastName: userMeta?.lastName || '',
+              role: roleToUse,
+            };
+          }
+
+          if (appUser && roleToUse) {
+            setStoredUser(appUser);
+            setState({
+              user: appUser,
+              role: roleToUse,
+              permissions: getPermissionsForRole(roleToUse),
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            return;
           }
         }
       }
@@ -210,20 +240,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Development fallback mode (when Supabase keys are not set or quick dev test used)
       let targetUser: User | undefined;
       const normalizedEmail = email.toLowerCase().trim();
+      const detectedRole = role || lookupKnownRole(normalizedEmail);
 
       if (role && DEMO_USERS[role]) {
         targetUser = DEMO_USERS[role];
-      } else if (normalizedEmail.includes('ops')) {
-        targetUser = DEMO_USERS.OPERATIONS;
-      } else if (normalizedEmail.includes('admin')) {
-        targetUser = DEMO_USERS.ADMIN;
       } else {
         targetUser = {
           id: `usr-${Date.now()}`,
           email: normalizedEmail,
           firstName: email.split('@')[0] || 'User',
           lastName: '',
-          role: role || 'OPERATIONS',
+          role: detectedRole,
         };
       }
 

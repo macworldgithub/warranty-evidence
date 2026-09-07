@@ -165,9 +165,22 @@ booran/
 │   └── package.json
 │
 ├── docs/
-│   └── ARCHITECTURE.md
+│   ├── ARCHITECTURE.md
+│   └── PHASE_3.md
 │
 ├── .gitignore
 ├── README.md
 └── package.json
 ```
+
+---
+
+## Phase 3 — Detailed Web Portal UI
+
+Phase 3 established the full enterprise UI layout for the unified web portal across all 10 core modules:
+
+* **Reusable Design System**: Standardized `DataTable`, `StatusBadge`, `PageHeader`, `StatCard`, `SearchInput`, `FilterSelect`, `Pagination`, `Tabs`, `Modal`, `ConfirmDialog`, and `Button` components.
+* **Decoupled Mock Repository**: Strongly-typed mock repositories in `src/lib/mock/` providing realistic data for warranties, defect cases, evidence items, tasks, and audit logs.
+* **Role-Specific Dashboard**: Distinct, tailored views for `ADMIN` (executive KPIs, review queues, audit trail) and `OPERATIONS` (active claims, tasks checklist, evidence intake).
+* **Workspace Workspaces**: Rich multi-tab workspaces for claims (`/cases/[id]`), evidence inspection (`/evidence/[id]`), and underwriting review decisions (`/reviews/[id]`).
+

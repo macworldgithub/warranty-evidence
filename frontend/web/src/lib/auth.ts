@@ -20,6 +20,20 @@ export const DEMO_USERS: Record<UserRole, User> = {
   },
 };
 
+export function lookupKnownRole(email: string, userMetaRole?: string): UserRole {
+  if (userMetaRole === 'ADMIN' || userMetaRole === 'OPERATIONS') {
+    return userMetaRole;
+  }
+  const clean = email.toLowerCase().trim();
+  if (clean === 'abdulahadnauman10@gmail.com' || clean === 'admin@booran.com' || clean.includes('admin')) {
+    return 'ADMIN';
+  }
+  if (clean === 'abdulahad.operations@gmail.com' || clean === 'ops@booran.com' || clean.includes('ops')) {
+    return 'OPERATIONS';
+  }
+  return 'OPERATIONS';
+}
+
 const STORAGE_KEY = 'booran_current_user';
 
 export function getStoredUser(): User | null {
