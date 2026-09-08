@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ClipboardList, Camera, CheckSquare, FileText, Clock, ArrowLeft, ArrowRight, Plus } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -38,11 +39,11 @@ export default function CaseDetailPage() {
   const caseReviews = mockReviews.filter((r) => r.caseId === caseItem.id);
 
   const tabs: TabItem[] = [
-    { id: 'overview', label: 'Claim Overview', icon: '📋' },
-    { id: 'evidence', label: 'Evidence Capture', badge: caseEvidence.length, icon: '📸' },
-    { id: 'tasks', label: 'Tasks & Checklist', badge: caseTasks.length, icon: '✅' },
-    { id: 'reviews', label: 'Review Records', badge: caseReviews.length, icon: '✍️' },
-    { id: 'activity', label: 'Audit Timeline', icon: '🕒' },
+    { id: 'overview', label: 'Claim Overview', icon: <ClipboardList className="w-4 h-4" /> },
+    { id: 'evidence', label: 'Evidence Capture', badge: caseEvidence.length, icon: <Camera className="w-4 h-4" /> },
+    { id: 'tasks', label: 'Tasks & Checklist', badge: caseTasks.length, icon: <CheckSquare className="w-4 h-4" /> },
+    { id: 'reviews', label: 'Review Records', badge: caseReviews.length, icon: <FileText className="w-4 h-4" /> },
+    { id: 'activity', label: 'Audit Timeline', icon: <Clock className="w-4 h-4" /> },
   ];
 
   return (
@@ -59,8 +60,9 @@ export default function CaseDetailPage() {
             ]}
             actions={
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => router.push('/cases')}>
-                  ← Back to Cases
+                <Button variant="outline" size="sm" onClick={() => router.push('/cases')} className="inline-flex items-center gap-1">
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Cases</span>
                 </Button>
                 <select
                   value={currentStatus}
@@ -129,8 +131,9 @@ export default function CaseDetailPage() {
                       <div>
                         <span className="text-slate-400 font-medium">Warranty Policy</span>
                         <p className="mt-1">
-                          <Link href={`/warranties/${caseItem.warrantyId}`} className="font-semibold text-primary hover:underline">
-                            {caseItem.warrantyNumber} ➔
+                          <Link href={`/warranties/${caseItem.warrantyId}`} className="font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                            <span>{caseItem.warrantyNumber}</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </Link>
                         </p>
                       </div>
@@ -175,8 +178,9 @@ export default function CaseDetailPage() {
                   Required photographic, video, and diagnostic protocol evidence
                 </p>
                 <Link href="/evidence">
-                  <Button variant="primary" size="sm">
-                    📸 Add Evidence Item
+                  <Button variant="primary" size="sm" className="inline-flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Add Evidence Item</span>
                   </Button>
                 </Link>
               </div>
@@ -195,7 +199,10 @@ export default function CaseDetailPage() {
                     </div>
                     <div className="flex justify-end pt-1">
                       <Link href={`/evidence/${evi.id}`}>
-                        <Button variant="outline" size="sm">Inspect Evidence ➔</Button>
+                        <Button variant="outline" size="sm" className="inline-flex items-center gap-1">
+                          <span>Inspect Evidence</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
                       </Link>
                     </div>
                   </Card>
@@ -210,7 +217,10 @@ export default function CaseDetailPage() {
               <div className="flex justify-between items-center">
                 <p className="text-xs font-semibold text-slate-600">Action items assigned to operational personnel</p>
                 <Link href="/tasks">
-                  <Button variant="primary" size="sm">➕ New Task</Button>
+                  <Button variant="primary" size="sm" className="inline-flex items-center gap-1.5">
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>New Task</span>
+                  </Button>
                 </Link>
               </div>
 
@@ -257,7 +267,10 @@ export default function CaseDetailPage() {
                       <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
                         <span>Submitted by: {r.submittedBy}</span>
                         <Link href={`/reviews/${r.id}`}>
-                          <Button variant="outline" size="sm">Open Review ➔</Button>
+                          <Button variant="outline" size="sm" className="inline-flex items-center gap-1">
+                            <span>Open Review</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Button>
                         </Link>
                       </div>
                     </Card>

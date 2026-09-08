@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Paperclip, Check, X } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -68,7 +69,10 @@ export default function ReviewsPage() {
       render: (r) => (
         <div>
           <span className="font-semibold text-slate-900">{r.evidenceRequirement}</span>
-          <p className="text-[11px] text-slate-400">📎 {r.attachmentCount} attachment(s) attached</p>
+          <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+            <Paperclip className="w-3 h-3" />
+            {r.attachmentCount} attachment(s) attached
+          </p>
         </div>
       ),
     },
@@ -210,15 +214,19 @@ export default function ReviewsPage() {
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDecision('REJECTED')}
+                      className="inline-flex items-center gap-1"
                     >
-                      ✕ Reject Evidence
+                      <X className="w-3.5 h-3.5" />
+                      <span>Reject Evidence</span>
                     </Button>
                     <Button
                       variant="primary"
                       size="sm"
                       onClick={() => handleDecision('APPROVED')}
+                      className="inline-flex items-center gap-1"
                     >
-                      ✓ Approve Evidence
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Approve Evidence</span>
                     </Button>
                   </div>
                 </div>

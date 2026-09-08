@@ -2,6 +2,20 @@
 
 import React from 'react';
 import Link from 'next/link';
+import {
+  Users,
+  ShieldCheck,
+  FolderOpen,
+  Camera,
+  FileCheck,
+  CheckSquare,
+  UserPlus,
+  ShieldPlus,
+  BarChart3,
+  History,
+  Plus,
+  ArrowRight,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
@@ -77,9 +91,10 @@ function AdminDashboardView() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard
           label="Total Users"
-          value="7"
-          icon="👥"
-          change="+3 new"
+          value="6"
+          icon={<Users className="w-5 h-5 text-purple-600" />}
+          iconBgColor="bg-purple-50 text-purple-600"
+          change="+2 new"
           trend="up"
           badgeText="Users"
           badgeVariant="purple"
@@ -87,7 +102,8 @@ function AdminDashboardView() {
         <StatCard
           label="Active Policies"
           value="1,420"
-          icon="🛡️"
+          icon={<ShieldCheck className="w-5 h-5 text-blue-600" />}
+          iconBgColor="bg-blue-50 text-blue-600"
           change="+14.8% MoM"
           trend="up"
           badgeText="Warranty"
@@ -96,7 +112,8 @@ function AdminDashboardView() {
         <StatCard
           label="Open Claims"
           value="38"
-          icon="📁"
+          icon={<FolderOpen className="w-5 h-5 text-amber-600" />}
+          iconBgColor="bg-amber-50 text-amber-600"
           change="5 urgent"
           trend="down"
           badgeText="Claims"
@@ -105,7 +122,8 @@ function AdminDashboardView() {
         <StatCard
           label="Pending Evidence"
           value="11"
-          icon="📸"
+          icon={<Camera className="w-5 h-5 text-slate-600" />}
+          iconBgColor="bg-slate-100 text-slate-600"
           change="3 awaiting capture"
           badgeText="Evidence"
           badgeVariant="gray"
@@ -113,7 +131,8 @@ function AdminDashboardView() {
         <StatCard
           label="Review Queue"
           value="4"
-          icon="✍️"
+          icon={<FileCheck className="w-5 h-5 text-rose-600" />}
+          iconBgColor="bg-rose-50 text-rose-600"
           change="Action required"
           trend="up"
           badgeText="Reviews"
@@ -122,7 +141,8 @@ function AdminDashboardView() {
         <StatCard
           label="Active Tasks"
           value="19"
-          icon="✅"
+          icon={<CheckSquare className="w-5 h-5 text-emerald-600" />}
+          iconBgColor="bg-emerald-50 text-emerald-600"
           change="92% on schedule"
           trend="up"
           badgeText="Operations"
@@ -179,7 +199,7 @@ function AdminDashboardView() {
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
               <Link href="/cases" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
-                View all cases ➔
+                View all cases <ArrowRight className="w-3.5 h-3.5 inline" />
               </Link>
             </div>
           </Card>
@@ -188,23 +208,23 @@ function AdminDashboardView() {
           <Card title="Quick Administrative Actions" description="Fast-track portal operations">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Link href="/users">
-                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
-                  ➕ Add User
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5 gap-2">
+                  <UserPlus className="w-4 h-4 text-purple-600" /> Add User
                 </Button>
               </Link>
               <Link href="/warranties">
-                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
-                  🛡️ New Warranty
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5 gap-2">
+                  <ShieldPlus className="w-4 h-4 text-blue-600" /> New Warranty
                 </Button>
               </Link>
               <Link href="/reports">
-                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
-                  📊 View Reports
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5 gap-2">
+                  <BarChart3 className="w-4 h-4 text-emerald-600" /> View Reports
                 </Button>
               </Link>
               <Link href="/audit-logs">
-                <Button variant="outline" className="w-full justify-start text-xs py-2.5">
-                  📋 Audit Trail
+                <Button variant="outline" className="w-full justify-start text-xs py-2.5 gap-2">
+                  <History className="w-4 h-4 text-amber-600" /> Audit Trail
                 </Button>
               </Link>
             </div>
@@ -233,8 +253,8 @@ function AdminDashboardView() {
               ))}
             </div>
             <div className="mt-3 pt-2 border-t border-slate-100">
-              <Link href="/reviews" className="text-xs font-semibold text-primary hover:underline">
-                View review queue ➔
+              <Link href="/reviews" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                View review queue <ArrowRight className="w-3.5 h-3.5 inline" />
               </Link>
             </div>
           </Card>
@@ -253,8 +273,8 @@ function AdminDashboardView() {
               ))}
             </div>
             <div className="mt-3 pt-2 border-t border-slate-100">
-              <Link href="/audit-logs" className="text-xs font-semibold text-primary hover:underline">
-                Full audit log ➔
+              <Link href="/audit-logs" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                Full audit log <ArrowRight className="w-3.5 h-3.5 inline" />
               </Link>
             </div>
           </Card>
@@ -277,37 +297,41 @@ function ManagerDashboardView() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Active Claims"
-          value={String(activeCases.length)}
-          icon="📁"
-          change="Across all sites"
+          value="4"
+          icon={<FolderOpen className="w-5 h-5 text-blue-600" />}
+          iconBgColor="bg-blue-50 text-blue-600"
+          change="2 urgent attention"
           trend="down"
           badgeText="Claims"
           badgeVariant="blue"
         />
         <StatCard
-          label="Cases Flagged"
-          value="2"
-          icon="🚩"
-          change="Incomplete evidence"
-          badgeText="Flagged"
-          badgeVariant="red"
-        />
-        <StatCard
-          label="Tasks Pending"
-          value={String(myTasks.length)}
-          icon="✅"
-          change="1 overdue"
-          trend="up"
-          badgeText="Tasks"
+          label="Evidence Pending Capture"
+          value="3"
+          icon={<Camera className="w-5 h-5 text-amber-600" />}
+          iconBgColor="bg-amber-50 text-amber-600"
+          change="Photos & scans needed"
+          badgeText="Action"
           badgeVariant="yellow"
         />
         <StatCard
-          label="Reviews Pending"
-          value={String(pendingReviews.length)}
-          icon="✍️"
-          change="Sign-off required"
+          label="Reviews Awaiting Sign-Off"
+          value="3"
+          icon={<FileCheck className="w-5 h-5 text-purple-600" />}
+          iconBgColor="bg-purple-50 text-purple-600"
+          change="Submitted to queue"
           badgeText="Queue"
           badgeVariant="purple"
+        />
+        <StatCard
+          label="Assigned Tasks"
+          value="4"
+          icon={<CheckSquare className="w-5 h-5 text-emerald-600" />}
+          iconBgColor="bg-emerald-50 text-emerald-600"
+          change="1 due today"
+          trend="up"
+          badgeText="Dispatch"
+          badgeVariant="green"
         />
       </div>
 
@@ -354,11 +378,13 @@ function ManagerDashboardView() {
               </table>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
-              <Link href="/reports" className="text-xs font-semibold text-primary hover:underline">
-                📊 View Reports ➔
+              <Link href="/cases">
+                <Button variant="primary" size="sm" className="gap-1.5">
+                  <Plus className="w-4 h-4" /> Create New Case
+                </Button>
               </Link>
-              <Link href="/cases" className="text-xs font-semibold text-primary hover:underline">
-                View all cases ➔
+              <Link href="/cases" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                View all cases <ArrowRight className="w-3.5 h-3.5 inline" />
               </Link>
             </div>
           </Card>
@@ -405,9 +431,9 @@ function ManagerDashboardView() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 pt-2 border-t border-slate-100">
-              <Link href="/tasks" className="text-xs font-semibold text-primary hover:underline">
-                View all tasks ➔
+            <div className="mt-4 pt-3 border-t border-slate-100">
+              <Link href="/tasks" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                View all tasks <ArrowRight className="w-3.5 h-3.5 inline" />
               </Link>
             </div>
           </Card>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { Check, Lock, ArrowLeft } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -32,57 +33,42 @@ export default function UserDetailPage() {
               { label: user ? `${user.firstName} ${user.lastName}` : 'User' },
             ]}
             actions={
-              <Button variant="outline" size="sm" onClick={() => router.push('/users')}>
-                ← Back to Users
+              <Button variant="outline" size="sm" onClick={() => router.push('/users')} className="inline-flex items-center gap-1">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Users</span>
               </Button>
             }
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* User Profile Card */}
-            <Card title="User Information" description="Identity and authentication status">
-              <div className="space-y-4 text-xs">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-                    {user?.firstName[0]}{user?.lastName?.[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">{user?.firstName} {user?.lastName}</p>
-                    <p className="text-slate-500">{user?.email}</p>
-                  </div>
+            {/* Left Column - User Info */}
+            <Card className="p-6">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 text-primary font-bold text-2xl flex items-center justify-center mb-3">
+                  {user?.firstName?.[0]}
+                  {user?.lastName?.[0]}
                 </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-slate-400 font-medium">RBAC Role</span>
-                    <div className="mt-0.5">
-                      {user && <StatusBadge status={user.role} />}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-medium">Account Status</span>
-                    <div className="mt-0.5">
-                      {user && <StatusBadge status={user.status} />}
-                    </div>
-                  </div>
+                <h3 className="font-bold text-slate-900 text-lg">
+                  {user?.firstName} {user?.lastName}
+                </h3>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">{user?.email}</p>
+                <div className="mt-3">
+                  <StatusBadge status={user?.role || 'TECHNICIAN'} size="md" />
                 </div>
+              </div>
 
-                <div>
-                  <span className="text-slate-400 font-medium">Supabase Auth UID</span>
-                  <p className="font-mono text-slate-800 text-[11px] mt-0.5 bg-slate-50 p-2 rounded border border-slate-200">
-                    {user?.supabaseUserId}
-                  </p>
+              <div className="mt-6 pt-6 border-t border-slate-100 space-y-3 text-xs">
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-400">Account Status</span>
+                  <span className="font-semibold text-emerald-600">Active</span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
-                  <div>
-                    <span className="text-slate-400 font-medium">Last Login</span>
-                    <p className="text-slate-700 font-medium mt-0.5">{user?.lastLogin}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-medium">Created On</span>
-                    <p className="text-slate-700 font-medium mt-0.5">{user?.createdAt}</p>
-                  </div>
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-400">User ID</span>
+                  <span className="font-mono text-[11px] text-slate-700">{user?.id}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-400">Created Date</span>
+                  <span className="text-slate-700">{user?.createdAt}</span>
                 </div>
               </div>
             </Card>
@@ -99,7 +85,7 @@ export default function UserDetailPage() {
                       key={perm}
                       className="flex items-center gap-2 p-2 rounded-lg border border-slate-200/70 bg-slate-50/50 text-xs text-slate-700"
                     >
-                      <span className="text-emerald-500 font-bold">✓</span>
+                      <Check className="w-3.5 h-3.5 text-emerald-500 font-bold shrink-0" />
                       <span className="font-mono text-[11px]">{perm}</span>
                     </div>
                   ))}
@@ -108,7 +94,10 @@ export default function UserDetailPage() {
 
               <Card title="Security & Password Governance" description="Authentication provider details">
                 <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-900 leading-relaxed space-y-1">
-                  <p className="font-semibold">🔒 Supabase Auth Managed</p>
+                  <p className="font-semibold flex items-center gap-1.5">
+                    <Lock className="w-4 h-4 text-amber-700" />
+                    <span>Supabase Auth Managed</span>
+                  </p>
                   <p>
                     Passkeys, password hashing, JWT sessions, and multi-factor authentication for this user are enforced externally by Supabase Auth. The Booran application database stores only the verified profile metadata and permission role.
                   </p>

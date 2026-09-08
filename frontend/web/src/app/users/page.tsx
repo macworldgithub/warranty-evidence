@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { UserPlus, Info } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -163,8 +164,8 @@ export default function UsersPage() {
             description="Manage Booran portal accounts, permissions, and status. Exactly two roles: ADMIN and OPERATIONS."
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Users' }]}
             actions={
-              <Button variant="primary" onClick={() => setIsAddModalOpen(true)}>
-                ➕ Add User
+              <Button variant="primary" onClick={() => setIsAddModalOpen(true)} className="gap-1.5">
+                <UserPlus className="w-4 h-4" /> Add User
               </Button>
             }
           />
@@ -218,9 +219,12 @@ export default function UsersPage() {
             size="md"
           >
             <form onSubmit={handleAddUser} className="space-y-4">
-              <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-xs text-blue-800 leading-relaxed">
-                <p className="font-semibold mb-0.5">ℹ️ Authentication via Supabase Auth</p>
-                Password creation and credential security are managed via Supabase. The user will be initialized in MongoDB and receive their login credentials through Supabase.
+              <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-xs text-blue-800 leading-relaxed flex items-start gap-2">
+                <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold mb-0.5">Authentication via Supabase Auth</p>
+                  Password creation and credential security are managed via Supabase. The user will be initialized in MongoDB and receive their login credentials through Supabase.
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Camera, FileText, ArrowLeft } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -33,70 +34,51 @@ export default function EvidenceDetailPage() {
       <AppShell>
         <div className="space-y-6">
           <PageHeader
-            title={`Evidence Item: ${item.requirementName}`}
-            description={`Case #${item.caseNumber} • Type: ${item.evidenceType}`}
+            title={item.requirementName}
+            description={`Case #${item.caseNumber} • Captured by ${item.capturedBy || 'Technician'}`}
             breadcrumbs={[
               { label: 'Home', href: '/dashboard' },
-              { label: 'Evidence', href: '/evidence' },
-              { label: item.requirementName },
+              { label: 'Evidence Vault', href: '/evidence' },
+              { label: item.id },
             ]}
             actions={
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => router.push('/evidence')}>
-                  ← Back to Evidence
-                </Button>
-                <Link href={`/cases/${item.caseId}`}>
-                  <Button variant="primary" size="sm">
-                    View Case #{item.caseNumber}
-                  </Button>
-                </Link>
-              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push('/evidence')} className="inline-flex items-center gap-1">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Evidence</span>
+              </Button>
             }
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Metadata Summary */}
-            <div className="space-y-6">
-              <Card title="Evidence Metadata" description="Capture specifics and provenance">
-                <div className="space-y-3 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Status</span>
-                    <StatusBadge status={item.status} />
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Evidence Format</span>
-                    <span className="font-semibold text-slate-800">{item.evidenceType}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Linked Case</span>
-                    <Link href={`/cases/${item.caseId}`} className="font-semibold text-primary hover:underline">
+            {/* Metadata Sidebar */}
+            <Card title="Evidence Lineage & Status" description="Audit metadata">
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <span className="text-slate-400">Verification Status</span>
+                  <StatusBadge status={item.status} />
+                </div>
+                <div>
+                  <span className="text-slate-400">Associated Claim</span>
+                  <p className="mt-0.5">
+                    <Link href={`/cases/${item.caseId}`} className="font-mono text-primary font-semibold hover:underline">
                       {item.caseNumber}
                     </Link>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Captured By</span>
-                    <span className="font-semibold text-slate-800">{item.capturedBy || 'Unassigned'}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-slate-500">Captured Timestamp</span>
-                    <span className="font-semibold text-slate-800">{item.capturedAt || 'Pending'}</span>
-                  </div>
+                  </p>
                 </div>
-              </Card>
-
-              <Card title="Verification & Review Summary" description="Underwriting assessment">
-                <div className="space-y-2 text-xs">
-                  {item.reviewNotes ? (
-                    <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-blue-900 leading-relaxed">
-                      <p className="font-semibold mb-1">Reviewer Assessment:</p>
-                      <p>{item.reviewNotes}</p>
-                    </div>
-                  ) : (
-                    <p className="text-slate-400 italic">This evidence item has not yet been processed by a reviewer.</p>
-                  )}
+                <div>
+                  <span className="text-slate-400">Format / Type</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{item.evidenceType}</p>
                 </div>
-              </Card>
-            </div>
+                <div>
+                  <span className="text-slate-400">Captured By</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{item.capturedBy || 'Unassigned'}</p>
+                </div>
+                <div>
+                  <span className="text-slate-400">Captured Timestamp</span>
+                  <p className="font-semibold text-slate-800 mt-0.5">{item.capturedAt || item.createdAt}</p>
+                </div>
+              </div>
+            </Card>
 
             {/* Visual Attachment Gallery */}
             <div className="lg:col-span-2 space-y-6">
@@ -115,8 +97,18 @@ export default function EvidenceDetailPage() {
                         key={att.id}
                         className="rounded-xl border border-slate-200/80 overflow-hidden bg-slate-50/50 hover:bg-slate-50 transition-colors"
                       >
-                        <div className="h-40 bg-slate-200 flex items-center justify-center text-slate-400 font-medium text-xs">
-                          {att.fileType.includes('image') ? '📷 High-Res Photographic Inspection' : '📄 Diagnostic Scan Protocol (PDF)'}
+                        <div className="h-40 bg-slate-200 flex flex-col items-center justify-center text-slate-500 font-medium text-xs gap-1.5 p-4 text-center">
+                          {att.fileType.includes('image') ? (
+                            <>
+                              <Camera className="w-8 h-8 text-slate-400" />
+                              <span>High-Res Photographic Inspection</span>
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="w-8 h-8 text-slate-400" />
+                              <span>Diagnostic Scan Protocol (PDF)</span>
+                            </>
+                          )}
                         </div>
                         <div className="p-3">
                           <p className="font-semibold text-xs text-slate-900 truncate">{att.fileName}</p>

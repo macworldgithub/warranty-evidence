@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Plus, Check, RotateCcw } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -154,8 +155,19 @@ export default function TasksPage() {
             variant={t.status === 'COMPLETED' ? 'outline' : 'secondary'}
             size="sm"
             onClick={() => toggleStatus(t)}
+            className="inline-flex items-center gap-1"
           >
-            {t.status === 'COMPLETED' ? 'Reopen' : '✓ Done'}
+            {t.status === 'COMPLETED' ? (
+              <>
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reopen</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-3.5 h-3.5" />
+                <span>Done</span>
+              </>
+            )}
           </Button>
           <Link href={`/tasks/${t.id}`}>
             <Button variant="outline" size="sm">
@@ -177,8 +189,8 @@ export default function TasksPage() {
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Tasks' }]}
             actions={
               <PermissionGate permission="tasks.create">
-                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-                  ➕ New Task
+                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)} className="gap-1.5">
+                  <Plus className="w-4 h-4" /> New Task
                 </Button>
               </PermissionGate>
             }

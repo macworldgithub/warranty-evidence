@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Play, Check, X, ArrowLeft } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -47,46 +48,36 @@ export default function TaskDetailPage() {
             breadcrumbs={[
               { label: 'Home', href: '/dashboard' },
               { label: 'Tasks', href: '/tasks' },
-              { label: task.title },
+              { label: task.id },
             ]}
             actions={
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => router.push('/tasks')}>
-                  ← Back to Tasks
-                </Button>
-                <Link href={`/cases/${task.caseId}`}>
-                  <Button variant="primary" size="sm">
-                    Open Case #{task.caseNumber}
-                  </Button>
-                </Link>
-              </div>
+              <Button variant="outline" size="sm" onClick={() => router.push('/tasks')} className="inline-flex items-center gap-1">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Tasks</span>
+              </Button>
             }
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Task Context Card */}
+            {/* Task Overview Sidebar */}
             <div className="space-y-6">
-              <Card title="Task Metadata" description="Dispatch schedule and ownership">
+              <Card title="Task Metadata" description="Assignment & priority details">
                 <div className="space-y-3 text-xs">
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Workflow Status</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <span className="text-slate-400">Current Status</span>
                     <StatusBadge status={currentStatus} />
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Priority Tier</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <span className="text-slate-400">Priority Level</span>
                     <StatusBadge status={task.priority} />
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Assigned Technician</span>
-                    <span className="font-semibold text-slate-800">{task.assignedToName}</span>
+                  <div>
+                    <span className="text-slate-400">Assigned Operator</span>
+                    <p className="font-semibold text-slate-800 mt-0.5">{task.assignedToName}</p>
                   </div>
-                  <div className="flex justify-between py-1.5 border-b border-slate-100">
-                    <span className="text-slate-500">Target Due Date</span>
-                    <span className="font-semibold text-slate-800">{task.dueDate}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-slate-500">Created On</span>
-                    <span className="text-slate-700">{task.createdAt}</span>
+                  <div>
+                    <span className="text-slate-400">Target Due Date</span>
+                    <p className="font-semibold text-slate-800 mt-0.5">{task.dueDate}</p>
                   </div>
                 </div>
               </Card>
@@ -97,26 +88,29 @@ export default function TaskDetailPage() {
                   <Button
                     variant={currentStatus === 'IN_PROGRESS' ? 'primary' : 'outline'}
                     size="sm"
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-xs inline-flex items-center gap-1.5"
                     onClick={() => setCurrentStatus('IN_PROGRESS')}
                   >
-                    ▶ Mark In Progress
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Mark In Progress</span>
                   </Button>
                   <Button
                     variant={currentStatus === 'COMPLETED' ? 'primary' : 'outline'}
                     size="sm"
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-xs inline-flex items-center gap-1.5"
                     onClick={() => setCurrentStatus('COMPLETED')}
                   >
-                    ✓ Mark Completed
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Mark Completed</span>
                   </Button>
                   <Button
                     variant={currentStatus === 'CANCELLED' ? 'destructive' : 'outline'}
                     size="sm"
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-xs inline-flex items-center gap-1.5"
                     onClick={() => setCurrentStatus('CANCELLED')}
                   >
-                    ✕ Cancel Task
+                    <X className="w-3.5 h-3.5" />
+                    <span>Cancel Task</span>
                   </Button>
                 </div>
               </Card>

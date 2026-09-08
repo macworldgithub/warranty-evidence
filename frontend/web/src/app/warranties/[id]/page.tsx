@@ -3,6 +3,7 @@
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -43,12 +44,12 @@ export default function WarrantyDetailPage() {
             ]}
             actions={
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => router.push('/warranties')}>
-                  ← Back to Warranties
+                <Button variant="outline" size="sm" onClick={() => router.push('/warranties')} className="gap-1.5">
+                  <ArrowLeft className="w-4 h-4" /> Back to Warranties
                 </Button>
                 <Link href={`/cases`}>
-                  <Button variant="primary" size="sm">
-                    ➕ Raise Claim
+                  <Button variant="primary" size="sm" className="gap-1.5">
+                    <Plus className="w-4 h-4" /> Raise Claim
                   </Button>
                 </Link>
               </div>

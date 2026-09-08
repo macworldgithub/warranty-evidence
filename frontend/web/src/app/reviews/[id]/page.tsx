@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Camera, Check, CheckCircle, ArrowLeft, AlertTriangle, XCircle } from 'lucide-react';
 import { AppShell } from '../../../components/layout/AppShell';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -52,7 +53,7 @@ export default function ReviewDetailPage() {
             actions={
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => router.push('/reviews')}>
-                  ← Back to Reviews
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Back to Reviews
                 </Button>
                 <Link href={`/cases/${review.caseId}`}>
                   <Button variant="primary" size="sm">
@@ -111,12 +112,15 @@ export default function ReviewDetailPage() {
                   <div className="p-4 rounded-xl border border-slate-200/80 space-y-2">
                     <p className="font-semibold text-slate-900">Attached Inspection Files:</p>
                     <div className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-100/80 border border-slate-200 text-xs">
-                      <span className="text-lg">📷</span>
+                      <Camera className="w-5 h-5 text-slate-600 shrink-0" />
                       <div className="flex-1 truncate">
                         <p className="font-semibold text-slate-800 truncate">{review.evidenceRequirement}.jpg</p>
                         <p className="text-[11px] text-slate-400">3.4 MB • High Resolution JPEG</p>
                       </div>
-                      <span className="text-emerald-600 font-semibold text-[11px]">✓ Verified</span>
+                      <span className="text-emerald-600 font-semibold text-[11px] flex items-center gap-1">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Verified</span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -127,7 +131,8 @@ export default function ReviewDetailPage() {
                 <div className="space-y-4 text-xs">
                   {decisionSaved && (
                     <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                      <span>✓ Decision recorded: <strong>{currentStatus}</strong></span>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Decision recorded: <strong>{currentStatus}</strong></span>
                     </div>
                   )}
 
@@ -149,8 +154,9 @@ export default function ReviewDetailPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDecision('INFO_REQUESTED')}
+                      className="gap-2"
                     >
-                      ⚠️ Request More Information
+                      <AlertTriangle className="w-4 h-4" /> Request More Information
                     </Button>
 
                     <div className="flex items-center gap-2">
@@ -158,15 +164,17 @@ export default function ReviewDetailPage() {
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDecision('REJECTED')}
+                        className="gap-2"
                       >
-                        ✕ Decline Claim Evidence
+                        <XCircle className="w-4 h-4" /> Decline Claim Evidence
                       </Button>
                       <Button
                         variant="primary"
                         size="sm"
                         onClick={() => handleDecision('APPROVED')}
+                        className="gap-2"
                       >
-                        ✓ Authorize & Approve
+                        <CheckCircle className="w-4 h-4" /> Authorize & Approve
                       </Button>
                     </div>
                   </div>

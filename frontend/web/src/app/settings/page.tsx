@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { User, Settings, ShieldCheck, Bell, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -21,10 +22,10 @@ export default function SettingsPage() {
   const [savedNotice, setSavedNotice] = useState(false);
 
   const tabs: TabItem[] = [
-    { id: 'profile', label: 'My Profile', icon: '👤' },
-    { id: 'preferences', label: 'System Preferences', icon: '⚙️' },
-    { id: 'security', label: 'Security & RBAC', icon: '🔒' },
-    { id: 'notifications', label: 'Notifications', icon: '🔔' },
+    { id: 'profile', label: 'My Profile', icon: <User className="w-4 h-4" /> },
+    { id: 'preferences', label: 'System Preferences', icon: <Settings className="w-4 h-4" /> },
+    { id: 'security', label: 'Security & RBAC', icon: <ShieldCheck className="w-4 h-4" /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell className="w-4 h-4" /> },
   ];
 
   const handleSave = (e: React.FormEvent) => {
@@ -45,7 +46,8 @@ export default function SettingsPage() {
 
           {savedNotice && (
             <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-2">
-              <span>✓ Settings updated successfully.</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>Settings updated successfully.</span>
             </div>
           )}
 
@@ -174,7 +176,9 @@ export default function SettingsPage() {
               <Card title="Role-Based Access Control Architecture" description="Current security boundary model">
                 <div className="space-y-3 text-xs">
                   <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-blue-900 leading-relaxed space-y-1">
-                    <p className="font-bold">🛡️ Two-Role Strict RBAC Model</p>
+                    <p className="font-bold flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-blue-600" /> Two-Role Strict RBAC Model
+                    </p>
                     <p>
                       The system strictly enforces two distinct roles: <strong>ADMIN</strong> and <strong>OPERATIONS</strong>. Field users and third-party inspectors interface via targeted mobile and technician workflows.
                     </p>

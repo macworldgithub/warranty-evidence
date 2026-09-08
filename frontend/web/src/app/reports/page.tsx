@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ShieldCheck, FolderOpen, Zap, DollarSign, Download, FileText } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -28,11 +29,13 @@ export default function ReportsPage() {
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Reports' }]}
             actions={
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleExport('CSV')}>
-                  📥 Export CSV
+                <Button variant="outline" size="sm" onClick={() => handleExport('CSV')} className="inline-flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
                 </Button>
-                <Button variant="primary" size="sm" onClick={() => handleExport('PDF')}>
-                  📄 Print PDF Summary
+                <Button variant="primary" size="sm" onClick={() => handleExport('PDF')} className="inline-flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Print PDF Summary</span>
                 </Button>
               </div>
             }
@@ -58,7 +61,8 @@ export default function ReportsPage() {
             <StatCard
               label="Active Warranties"
               value={data.kpis.totalWarranties.toLocaleString()}
-              icon="🛡️"
+              icon={<ShieldCheck className="w-5 h-5 text-blue-600" />}
+              iconBgColor="bg-blue-50 text-blue-600"
               change={`+${data.kpis.warrantiesGrowthPct}% vs prior period`}
               trend="up"
               badgeText="Volume"
@@ -67,7 +71,8 @@ export default function ReportsPage() {
             <StatCard
               label="Active Claim Volume"
               value={data.kpis.openClaims}
-              icon="📁"
+              icon={<FolderOpen className="w-5 h-5 text-amber-600" />}
+              iconBgColor="bg-amber-50 text-amber-600"
               change={`${data.kpis.claimsResolutionRatePct}% resolution rate`}
               trend="up"
               badgeText="Claims"
@@ -76,7 +81,8 @@ export default function ReportsPage() {
             <StatCard
               label="Avg Review Turnaround"
               value={`${data.kpis.avgReviewTurnaroundHours} hrs`}
-              icon="⚡"
+              icon={<Zap className="w-5 h-5 text-emerald-600" />}
+              iconBgColor="bg-emerald-50 text-emerald-600"
               change="SLA target: < 8 hrs"
               trend="up"
               badgeText="Velocity"
@@ -85,7 +91,8 @@ export default function ReportsPage() {
             <StatCard
               label="Settled Payouts (YTD)"
               value={`$${data.kpis.totalPayoutsAud.toLocaleString()} AUD`}
-              icon="💰"
+              icon={<DollarSign className="w-5 h-5 text-purple-600" />}
+              iconBgColor="bg-purple-50 text-purple-600"
               change="Across 5 active dealership sites"
               badgeText="Payouts"
               badgeVariant="purple"

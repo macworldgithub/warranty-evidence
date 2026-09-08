@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ShieldPlus } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -182,8 +183,8 @@ export default function WarrantiesPage() {
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Warranties' }]}
             actions={
               <PermissionGate permission="warranties.create">
-                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-                  ➕ Create Warranty
+                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)} className="gap-1.5">
+                  <ShieldPlus className="w-4 h-4" /> Create Warranty
                 </Button>
               </PermissionGate>
             }

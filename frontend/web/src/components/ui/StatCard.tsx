@@ -1,11 +1,13 @@
 import React from 'react';
+import { BarChart3 } from 'lucide-react';
 import { Card } from './Card';
 import { Badge } from './Badge';
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon?: string;
+  icon?: React.ReactNode;
+  iconBgColor?: string;
   change?: string;
   trend?: 'up' | 'down' | 'neutral';
   badgeText?: string;
@@ -17,6 +19,7 @@ export function StatCard({
   label,
   value,
   icon,
+  iconBgColor = 'bg-blue-50 text-blue-600',
   change,
   trend,
   badgeText,
@@ -26,7 +29,17 @@ export function StatCard({
   return (
     <Card className="p-4 transition-all duration-150 hover:shadow-md hover:border-slate-300">
       <div className="flex items-center justify-between">
-        <span className="text-2xl select-none">{icon || '📊'}</span>
+        {typeof icon === 'string' ? (
+          <span className="text-2xl select-none">{icon}</span>
+        ) : icon ? (
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBgColor} shadow-2xs`}>
+            {icon}
+          </div>
+        ) : (
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 shadow-2xs">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
+          </div>
+        )}
         {badgeText && (
           <Badge variant={badgeVariant} size="sm">
             {badgeText}

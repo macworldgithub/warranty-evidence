@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Camera, Paperclip, UploadCloud } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -140,8 +141,15 @@ export default function EvidencePage() {
       key: 'attachments',
       header: 'Attachments',
       render: (e) => (
-        <span className="font-semibold text-slate-700">
-          {e.attachments.length > 0 ? `📎 ${e.attachments.length} file(s)` : 'None'}
+        <span className="font-semibold text-slate-700 flex items-center gap-1">
+          {e.attachments.length > 0 ? (
+            <>
+              <Paperclip className="w-3.5 h-3.5 text-slate-400" />
+              <span>{e.attachments.length} file(s)</span>
+            </>
+          ) : (
+            'None'
+          )}
         </span>
       ),
     },
@@ -171,8 +179,9 @@ export default function EvidencePage() {
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Evidence' }]}
             actions={
               <PermissionGate permission="evidence.create">
-                <Button variant="primary" onClick={() => setIsUploadModalOpen(true)}>
-                  📸 Add Evidence
+                <Button variant="primary" onClick={() => setIsUploadModalOpen(true)} className="inline-flex items-center gap-1.5">
+                  <Camera className="w-4 h-4" />
+                  <span>Add Evidence</span>
                 </Button>
               </PermissionGate>
             }
@@ -286,7 +295,7 @@ export default function EvidencePage() {
                   Evidence File Attachment
                 </label>
                 <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                  <div className="text-2xl mb-1">📁</div>
+                  <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-1" />
                   <p className="text-xs font-medium text-slate-700">Drop inspection file here or browse</p>
                   <p className="text-[11px] text-slate-400 mt-1">PNG, JPG, PDF, or MP4 up to 50MB</p>
                   <input

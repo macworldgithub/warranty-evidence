@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { Download } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -103,8 +104,10 @@ export default function AuditLogsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => alert('Exporting audit log trail... (Phase 4 integration)')}
+                className="inline-flex items-center gap-1.5"
               >
-                📥 Export Audit Archive
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Audit Archive</span>
               </Button>
             }
           />

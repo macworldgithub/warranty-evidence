@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 import { AppShell } from '../../components/layout/AppShell';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -168,8 +169,8 @@ export default function CasesPage() {
             breadcrumbs={[{ label: 'Home', href: '/dashboard' }, { label: 'Cases' }]}
             actions={
               <PermissionGate permission="cases.create">
-                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-                  ➕ Create Case
+                <Button variant="primary" onClick={() => setIsCreateModalOpen(true)} className="gap-1.5">
+                  <Plus className="w-4 h-4" /> Create Case
                 </Button>
               </PermissionGate>
             }

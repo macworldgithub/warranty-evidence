@@ -4,7 +4,7 @@ export interface TabItem {
   id: string;
   label: string;
   badge?: number | string;
-  icon?: string;
+  icon?: React.ReactNode;
 }
 
 interface TabsProps {
@@ -30,7 +30,7 @@ export function Tabs({ tabs, activeTab, onChange, className = '' }: TabsProps) {
                   : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
               }`}
             >
-              {tab.icon && <span>{tab.icon}</span>}
+              {tab.icon && (typeof tab.icon === 'string' ? <span>{tab.icon}</span> : tab.icon)}
               <span>{tab.label}</span>
               {tab.badge !== undefined && (
                 <span
