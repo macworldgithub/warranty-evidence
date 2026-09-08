@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import type { User, UserRole, AuthState } from '../types/auth';
 import type { Permission } from '../types/permissions';
 import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase/client';
-import { DEMO_USERS, getStoredUser, setStoredUser, getUserWithPermissions, lookupKnownRole } from '../lib/auth';
+import { DEMO_USERS, getStoredUser, setStoredUser, getUserWithPermissions, lookupKnownRole, getDevTokenForRole } from '../lib/auth';
 import { hasPermission as checkPermission, getPermissionsForRole } from '../lib/permissions';
 import { api } from '../lib/api';
 
@@ -254,8 +254,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
       }
 
-      const devToken = targetUser.role === 'ADMIN' ? 'dev-admin-token' : 'dev-ops-token';
-      localStorage.setItem('booran_auth_token', devToken);
+      localStorage.setItem('booran_auth_token', getDevTokenForRole(targetUser.role));
       setStoredUser(targetUser);
 
       const authData = getUserWithPermissions(targetUser);
@@ -290,8 +289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const switchRole = useCallback((newRole: UserRole) => {
     const targetUser = DEMO_USERS[newRole];
-    const devToken = newRole === 'ADMIN' ? 'dev-admin-token' : 'dev-ops-token';
-    localStorage.setItem('booran_auth_token', devToken);
+    localStorage.setItem('booran_auth_token', getDevTokenForRole(newRole));
     setStoredUser(targetUser);
     const authData = getUserWithPermissions(targetUser);
     setState({

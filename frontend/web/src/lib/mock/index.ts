@@ -6,3 +6,5 @@ export * from './reviews';
 export * from './tasks';
 export * from './auditLogs';
 export * from './reports';
+export * from './brand-packs';
+

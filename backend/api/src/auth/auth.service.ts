@@ -69,10 +69,28 @@ export class AuthService {
           email: 'admin@booran.com',
         };
       }
-      if (token === 'dev-ops-token') {
+      if (token === 'dev-ops-token' || token === 'dev-clerk-token') {
         return {
-          supabaseUserId: 'sub-ops-seed-01',
-          email: 'ops@booran.com',
+          supabaseUserId: 'sub-clerk-seed-01',
+          email: 'clerk@booran.com',
+        };
+      }
+      if (token === 'dev-advisor-token') {
+        return {
+          supabaseUserId: 'sub-advisor-seed-01',
+          email: 'advisor@booran.com',
+        };
+      }
+      if (token === 'dev-manager-token') {
+        return {
+          supabaseUserId: 'sub-manager-seed-01',
+          email: 'manager@booran.com',
+        };
+      }
+      if (token === 'dev-tech-token') {
+        return {
+          supabaseUserId: 'sub-tech-seed-01',
+          email: 'tech@booran.com',
         };
       }
 
@@ -133,6 +151,7 @@ export class AuthService {
       lastName: user.lastName,
       role: user.role,
       status: user.status,
+      assignedSites: user.assignedSites || [],
       permissions,
     };
   }

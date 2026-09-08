@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type UserRole = 'ADMIN' | 'OPERATIONS';
+export type UserRole = 'ADMIN' | 'MANAGER' | 'CLERK' | 'ADVISOR' | 'TECHNICIAN';
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 export type UserDocument = User & Document;
@@ -26,8 +26,8 @@ export class User {
   @Prop({
     type: String,
     required: true,
-    enum: ['ADMIN', 'OPERATIONS'],
-    default: 'OPERATIONS',
+    enum: ['ADMIN', 'MANAGER', 'CLERK', 'ADVISOR', 'TECHNICIAN'],
+    default: 'CLERK',
   })
   role!: UserRole;
 
@@ -38,6 +38,12 @@ export class User {
     default: 'ACTIVE',
   })
   status!: UserStatus;
+
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  assignedSites!: string[];
 
   @Prop()
   lastLoginAt?: Date;

@@ -12,8 +12,12 @@ async function createAccount() {
 
   const email = getArg('email', 'abdulahadnauman10@gmail.com').trim().toLowerCase();
   const password = getArg('password', 'Password123!');
+  const VALID_ROLES = ['ADMIN', 'MANAGER', 'CLERK', 'ADVISOR', 'TECHNICIAN'] as const;
+  type UserRole = typeof VALID_ROLES[number];
   const roleInput = getArg('role', 'ADMIN').toUpperCase();
-  const role = roleInput === 'OPERATIONS' ? 'OPERATIONS' : 'ADMIN';
+  const role: UserRole = (VALID_ROLES as readonly string[]).includes(roleInput) 
+    ? (roleInput as UserRole) 
+    : roleInput === 'OPERATIONS' ? 'CLERK' : 'ADMIN';
   const firstName = getArg('firstName', 'Abdul');
   const lastName = getArg('lastName', 'Ahad');
 

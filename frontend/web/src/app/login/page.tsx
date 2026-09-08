@@ -104,24 +104,48 @@ export default function LoginPage() {
                 onClick={() => fillCredentials('abdulahad.operations@gmail.com')}
                 className="p-2 rounded-lg border border-blue-200 bg-blue-50/50 text-slate-800 hover:bg-blue-50 cursor-pointer text-xs"
               >
-                <span className="font-bold text-blue-700 block">Operations (Ahad)</span>
+                <span className="font-bold text-blue-700 block">Clerk (Ahad)</span>
                 <span className="text-[10px] text-slate-500 truncate block">abdulahad.operations@gmail.com</span>
               </button>
               <button
                 type="button"
                 onClick={() => fillCredentials('admin@booran.com')}
-                className="p-2 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 hover:bg-slate-50 cursor-pointer text-xs"
+                className="p-2 rounded-lg border border-purple-200 bg-purple-50/30 text-slate-800 hover:bg-purple-50 cursor-pointer text-xs"
               >
-                <span className="font-bold text-slate-700 block">Admin (Demo)</span>
+                <span className="font-bold text-purple-600 block">👑 Group Admin</span>
                 <span className="text-[10px] text-slate-500 truncate block">admin@booran.com</span>
               </button>
               <button
                 type="button"
-                onClick={() => fillCredentials('ops@booran.com')}
-                className="p-2 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 hover:bg-slate-50 cursor-pointer text-xs"
+                onClick={() => fillCredentials('manager@booran.com')}
+                className="p-2 rounded-lg border border-amber-200 bg-amber-50/30 text-slate-800 hover:bg-amber-50 cursor-pointer text-xs"
               >
-                <span className="font-bold text-slate-700 block">Operations (Demo)</span>
-                <span className="text-[10px] text-slate-500 truncate block">ops@booran.com</span>
+                <span className="font-bold text-amber-700 block">📊 Manager</span>
+                <span className="text-[10px] text-slate-500 truncate block">manager@booran.com</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('clerk@booran.com')}
+                className="p-2 rounded-lg border border-blue-200 bg-blue-50/30 text-slate-800 hover:bg-blue-50 cursor-pointer text-xs"
+              >
+                <span className="font-bold text-blue-700 block">📋 Warranty Clerk</span>
+                <span className="text-[10px] text-slate-500 truncate block">clerk@booran.com</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('advisor@booran.com')}
+                className="p-2 rounded-lg border border-green-200 bg-green-50/30 text-slate-800 hover:bg-green-50 cursor-pointer text-xs"
+              >
+                <span className="font-bold text-green-700 block">💬 Service Advisor</span>
+                <span className="text-[10px] text-slate-500 truncate block">advisor@booran.com</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fillCredentials('tech@booran.com')}
+                className="col-span-2 p-2 rounded-lg border border-slate-200 bg-slate-50/30 text-slate-800 hover:bg-slate-50 cursor-pointer text-xs"
+              >
+                <span className="font-bold text-slate-600 block">🔧 Technician (No portal access — mobile PWA only)</span>
+                <span className="text-[10px] text-slate-500 truncate block">tech@booran.com</span>
               </button>
             </div>
           </div>

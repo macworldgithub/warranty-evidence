@@ -58,6 +58,24 @@ export const ALL_NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'reports',
   },
   {
+    name: 'Brands',
+    href: '/brands',
+    permission: 'brands.view',
+    icon: 'brands',
+  },
+  {
+    name: 'Sites',
+    href: '/sites',
+    permission: 'sites.view',
+    icon: 'sites',
+  },
+  {
+    name: 'Brand Packs',
+    href: '/brand-packs',
+    permission: 'brand_packs.view',
+    icon: 'packs',
+  },
+  {
     name: 'Audit Logs',
     href: '/audit-logs',
     permission: 'audit.view',

@@ -9,5 +9,6 @@ export interface AuthenticatedUser {
   lastName: string;
   role: UserRole;
   status: UserStatus;
+  assignedSites?: string[];
   permissions: Permission[];
 }

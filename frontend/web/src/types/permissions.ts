@@ -25,4 +25,16 @@ export type Permission =
   | 'reports.view'
   | 'audit.view'
   | 'settings.view'
-  | 'settings.update';
+  | 'settings.update'
+  // Phase 4 Permissions
+  | 'brands.view'
+  | 'brands.create'
+  | 'brands.update'
+  | 'sites.view'
+  | 'sites.create'
+  | 'sites.update'
+  | 'brand_packs.view'
+  | 'brand_packs.create'
+  | 'brand_packs.update'
+  | 'brand_packs.publish'
+  | 'brand_packs.archive';

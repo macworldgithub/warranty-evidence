@@ -48,7 +48,16 @@ export default function DashboardPage() {
 
           {/* Role-Specific Dashboard Views */}
           {role === 'ADMIN' && <AdminDashboardView />}
-          {role === 'OPERATIONS' && <OperationsDashboardView />}
+          {role === 'MANAGER' && <ManagerDashboardView />}
+          {role === 'CLERK' && <ClerkDashboardView />}
+          {role === 'ADVISOR' && <AdvisorDashboardView />}
+          {role === 'TECHNICIAN' && (
+            <Card className="p-8 text-center">
+              <p className="text-2xl mb-2">🔧</p>
+              <p className="text-sm font-semibold text-slate-800">Technician Portal Access</p>
+              <p className="text-xs text-slate-500 mt-1">Technicians use the mobile Capture App in the workshop. Portal access is limited for this role.</p>
+            </Card>
+          )}
         </div>
       </AppShell>
     </ProtectedRoute>
@@ -68,9 +77,9 @@ function AdminDashboardView() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard
           label="Total Users"
-          value="6"
+          value="7"
           icon="👥"
-          change="+2 new"
+          change="+3 new"
           trend="up"
           badgeText="Users"
           badgeVariant="purple"
@@ -255,56 +264,56 @@ function AdminDashboardView() {
   );
 }
 
-// ─── OPERATIONS DASHBOARD VIEW ──────────────────────────────────────────
+// ─── MANAGER DASHBOARD VIEW ──────────────────────────────────────────
 
-function OperationsDashboardView() {
+function ManagerDashboardView() {
   const activeCases = mockCases.filter((c) => c.status !== 'CLOSED');
+  const pendingReviews = mockReviews.filter((r) => r.status === 'PENDING').slice(0, 3);
   const myTasks = mockTasks.filter((t) => t.status !== 'COMPLETED');
 
   return (
     <div className="space-y-6">
-      {/* Operations Key Metrics */}
+      {/* Manager KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Active Claims"
-          value="4"
+          value={String(activeCases.length)}
           icon="📁"
-          change="2 urgent attention"
+          change="Across all sites"
           trend="down"
-          badgeText="Active"
+          badgeText="Claims"
           badgeVariant="blue"
         />
         <StatCard
-          label="Evidence Pending Capture"
-          value="3"
-          icon="📸"
-          change="Photos & scans needed"
-          badgeText="Action"
+          label="Cases Flagged"
+          value="2"
+          icon="🚩"
+          change="Incomplete evidence"
+          badgeText="Flagged"
+          badgeVariant="red"
+        />
+        <StatCard
+          label="Tasks Pending"
+          value={String(myTasks.length)}
+          icon="✅"
+          change="1 overdue"
+          trend="up"
+          badgeText="Tasks"
           badgeVariant="yellow"
         />
         <StatCard
-          label="Reviews Awaiting Sign-Off"
-          value="3"
+          label="Reviews Pending"
+          value={String(pendingReviews.length)}
           icon="✍️"
-          change="Submitted to queue"
+          change="Sign-off required"
           badgeText="Queue"
           badgeVariant="purple"
-        />
-        <StatCard
-          label="Assigned Tasks"
-          value="4"
-          icon="✅"
-          change="1 due today"
-          trend="up"
-          badgeText="Dispatch"
-          badgeVariant="green"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Claims Queue */}
         <div className="lg:col-span-2 space-y-6">
-          <Card title="Active Operational Claims" description="Claims currently undergoing diagnosis and parts allocation">
+          <Card title="Operational Claims Overview" description="All active claims across your sites">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -345,8 +354,8 @@ function OperationsDashboardView() {
               </table>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
-              <Link href="/cases">
-                <Button variant="primary" size="sm">➕ Create New Case</Button>
+              <Link href="/reports" className="text-xs font-semibold text-primary hover:underline">
+                📊 View Reports ➔
               </Link>
               <Link href="/cases" className="text-xs font-semibold text-primary hover:underline">
                 View all cases ➔
@@ -355,11 +364,34 @@ function OperationsDashboardView() {
           </Card>
         </div>
 
-        {/* Operational Tasks Checklist */}
         <div className="space-y-6">
-          <Card title="My Operational Tasks" description="Checklist of investigation & dispatch tasks">
+          <Card title="Pending Reviews" description="Evidence awaiting sign-off">
             <div className="space-y-3">
-              {myTasks.map((t) => (
+              {pendingReviews.map((rev) => (
+                <div key={rev.id} className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-primary">{rev.caseNumber}</span>
+                    <StatusBadge status={rev.status} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 mt-1">{rev.evidenceRequirement}</p>
+                  <div className="mt-2 pt-2 border-t border-slate-200/50 flex justify-end">
+                    <Link href={`/reviews/${rev.id}`}>
+                      <Button variant="primary" size="sm" className="text-[11px] py-1 px-2.5">Review</Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-2 border-t border-slate-100">
+              <Link href="/reviews" className="text-xs font-semibold text-primary hover:underline">
+                View review queue ➔
+              </Link>
+            </div>
+          </Card>
+
+          <Card title="Task Dispatch" description="Assigned operational tasks">
+            <div className="space-y-3">
+              {myTasks.slice(0, 3).map((t) => (
                 <div key={t.id} className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition-colors">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-primary">{t.caseNumber}</span>
@@ -373,7 +405,7 @@ function OperationsDashboardView() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-100">
+            <div className="mt-3 pt-2 border-t border-slate-100">
               <Link href="/tasks" className="text-xs font-semibold text-primary hover:underline">
                 View all tasks ➔
               </Link>
@@ -384,3 +416,218 @@ function OperationsDashboardView() {
     </div>
   );
 }
+
+// ─── CLERK DASHBOARD VIEW ──────────────────────────────────────────
+
+function ClerkDashboardView() {
+  const activeCases = mockCases.filter((c) => c.status !== 'CLOSED');
+  const pendingReviews = mockReviews.filter((r) => r.status === 'PENDING').slice(0, 4);
+
+  return (
+    <div className="space-y-6">
+      {/* Clerk KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Cases Awaiting Review"
+          value={String(activeCases.length)}
+          icon="📋"
+          change="Ready for processing"
+          badgeText="Inbox"
+          badgeVariant="blue"
+        />
+        <StatCard
+          label="Evidence to Check"
+          value="6"
+          icon="📸"
+          change="Photos & diagnostics"
+          badgeText="Evidence"
+          badgeVariant="yellow"
+        />
+        <StatCard
+          label="Flagged Cases"
+          value="1"
+          icon="🚩"
+          change="Waiting for technician"
+          badgeText="Flagged"
+          badgeVariant="red"
+        />
+        <StatCard
+          label="Submitted Today"
+          value="3"
+          icon="✅"
+          change="Packs downloaded"
+          trend="up"
+          badgeText="Done"
+          badgeVariant="green"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card title="Case Inbox" description="Cases awaiting your review — newest first">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <tr>
+                    <th className="pb-2">Case #</th>
+                    <th className="pb-2">Issue / Vehicle</th>
+                    <th className="pb-2">Priority</th>
+                    <th className="pb-2">Status</th>
+                    <th className="pb-2 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {activeCases.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3 font-semibold text-slate-900">
+                        <Link href={`/cases/${c.id}`} className="text-primary hover:underline">
+                          {c.caseNumber}
+                        </Link>
+                      </td>
+                      <td className="py-3">
+                        <p className="font-semibold text-slate-800">{c.title}</p>
+                        <p className="text-[11px] text-slate-400 truncate max-w-sm">{c.vehicleSummary}</p>
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.priority} />
+                      </td>
+                      <td className="py-3">
+                        <StatusBadge status={c.status} />
+                      </td>
+                      <td className="py-3 text-right">
+                        <Link href={`/cases/${c.id}`}>
+                          <Button variant="primary" size="sm">Review</Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+              <Link href="/cases" className="text-xs font-semibold text-primary hover:underline">
+                View all cases ➔
+              </Link>
+            </div>
+          </Card>
+        </div>
+
+        <div>
+          <Card title="Evidence Review Queue" description="Items pending your sign-off">
+            <div className="space-y-3">
+              {pendingReviews.map((rev) => (
+                <div key={rev.id} className="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-primary">{rev.caseNumber}</span>
+                    <StatusBadge status={rev.status} />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 mt-1">{rev.evidenceRequirement}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">By {rev.submittedBy}</p>
+                  <div className="mt-2 pt-2 border-t border-slate-200/50 flex justify-end">
+                    <Link href={`/reviews/${rev.id}`}>
+                      <Button variant="primary" size="sm" className="text-[11px] py-1 px-2.5">Review</Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-2 border-t border-slate-100">
+              <Link href="/reviews" className="text-xs font-semibold text-primary hover:underline">
+                View review queue ➔
+              </Link>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ADVISOR DASHBOARD VIEW ──────────────────────────────────────────
+
+function AdvisorDashboardView() {
+  const activeCases = mockCases.filter((c) => c.status !== 'CLOSED').slice(0, 5);
+
+  return (
+    <div className="space-y-6">
+      {/* Advisor KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard
+          label="Active Cases"
+          value={String(activeCases.length)}
+          icon="📁"
+          change="Your customer cases"
+          badgeText="Cases"
+          badgeVariant="blue"
+        />
+        <StatCard
+          label="Flagged for Follow-Up"
+          value="1"
+          icon="🚩"
+          change="Needs technician action"
+          badgeText="Flagged"
+          badgeVariant="red"
+        />
+        <StatCard
+          label="Evidence Ready"
+          value="4"
+          icon="📸"
+          change="Review available"
+          trend="up"
+          badgeText="Evidence"
+          badgeVariant="green"
+        />
+      </div>
+
+      <Card title="Customer Case Status" description="Active warranty cases for your customers">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr>
+                <th className="pb-2">Case #</th>
+                <th className="pb-2">Customer</th>
+                <th className="pb-2">Issue</th>
+                <th className="pb-2">Priority</th>
+                <th className="pb-2">Status</th>
+                <th className="pb-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {activeCases.map((c) => (
+                <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3 font-semibold text-slate-900">
+                    <Link href={`/cases/${c.id}`} className="text-primary hover:underline">
+                      {c.caseNumber}
+                    </Link>
+                  </td>
+                  <td className="py-3 font-medium text-slate-800">{c.customerName}</td>
+                  <td className="py-3">
+                    <p className="text-slate-700">{c.title}</p>
+                    <p className="text-[11px] text-slate-400 truncate max-w-xs">{c.vehicleSummary}</p>
+                  </td>
+                  <td className="py-3">
+                    <StatusBadge status={c.priority} />
+                  </td>
+                  <td className="py-3">
+                    <StatusBadge status={c.status} />
+                  </td>
+                  <td className="py-3 text-right">
+                    <Link href={`/cases/${c.id}`}>
+                      <Button variant="outline" size="sm">View Case</Button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+          <Link href="/cases" className="text-xs font-semibold text-primary hover:underline">
+            View all cases ➔
+          </Link>
+        </div>
+      </Card>
+    </div>
+  );
+}
+

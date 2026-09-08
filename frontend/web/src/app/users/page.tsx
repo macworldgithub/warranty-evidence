@@ -69,7 +69,7 @@ export default function UsersPage() {
       firstName: '',
       lastName: '',
       email: '',
-      role: 'OPERATIONS',
+      role: 'CLERK',
       status: 'ACTIVE',
     });
   };

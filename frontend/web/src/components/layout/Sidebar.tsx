@@ -18,7 +18,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const navItems = getFilteredNavigation(permissions);
 
-  const roleBadgeVariant = role === 'ADMIN' ? 'purple' : 'blue';
+  const roleBadgeVariant = (() => {
+    switch (role) {
+      case 'ADMIN': return 'purple' as const;
+      case 'MANAGER': return 'amber' as const;
+      case 'CLERK': return 'blue' as const;
+      case 'ADVISOR': return 'green' as const;
+      case 'TECHNICIAN': return 'slate' as const;
+      default: return 'blue' as const;
+    }
+  })();
 
   return (
     <>
@@ -141,6 +150,12 @@ function getIcon(name: string) {
       return '📈';
     case 'audit':
       return '📜';
+    case 'brands':
+      return '🚘';
+    case 'sites':
+      return '🏢';
+    case 'packs':
+      return '📦';
     case 'settings':
       return '⚙️';
     default:

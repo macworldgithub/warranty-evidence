@@ -8,30 +8,80 @@ export const DEMO_USERS: Record<UserRole, User> = {
     firstName: 'Sarah',
     lastName: 'Connor',
     role: 'ADMIN',
-    department: 'Executive Operations',
+    department: 'Group Administration',
   },
-  OPERATIONS: {
-    id: 'usr-ops-01',
-    email: 'ops@booran.com',
+  MANAGER: {
+    id: 'usr-manager-01',
+    email: 'manager@booran.com',
+    firstName: 'David',
+    lastName: 'Park',
+    role: 'MANAGER',
+    department: 'Aftersales Management',
+  },
+  CLERK: {
+    id: 'usr-clerk-01',
+    email: 'clerk@booran.com',
     firstName: 'Marcus',
     lastName: 'Vance',
-    role: 'OPERATIONS',
-    department: 'Warranty Claims & Dispatch',
+    role: 'CLERK',
+    department: 'Warranty Processing',
+  },
+  ADVISOR: {
+    id: 'usr-advisor-01',
+    email: 'advisor@booran.com',
+    firstName: 'Elena',
+    lastName: 'Rodriguez',
+    role: 'ADVISOR',
+    department: 'Service Advisory',
+  },
+  TECHNICIAN: {
+    id: 'usr-tech-01',
+    email: 'tech@booran.com',
+    firstName: 'James',
+    lastName: 'Miller',
+    role: 'TECHNICIAN',
+    department: 'Workshop Operations',
   },
 };
 
+const VALID_ROLES: UserRole[] = ['ADMIN', 'MANAGER', 'CLERK', 'ADVISOR', 'TECHNICIAN'];
+
 export function lookupKnownRole(email: string, userMetaRole?: string): UserRole {
-  if (userMetaRole === 'ADMIN' || userMetaRole === 'OPERATIONS') {
-    return userMetaRole;
-  }
   const clean = email.toLowerCase().trim();
-  if (clean === 'abdulahadnauman10@gmail.com' || clean === 'admin@booran.com' || clean.includes('admin')) {
+
+  // 1. Explicit known demo & personal accounts take precedence
+  if (clean === 'abdulahadnauman10@gmail.com' || clean === 'admin@booran.com') {
     return 'ADMIN';
   }
-  if (clean === 'abdulahad.operations@gmail.com' || clean === 'ops@booran.com' || clean.includes('ops')) {
-    return 'OPERATIONS';
+  if (clean === 'manager@booran.com') {
+    return 'MANAGER';
   }
-  return 'OPERATIONS';
+  if (clean === 'advisor@booran.com') {
+    return 'ADVISOR';
+  }
+  if (clean === 'tech@booran.com') {
+    return 'TECHNICIAN';
+  }
+  if (clean === 'abdulahad.operations@gmail.com' || clean === 'ops@booran.com' || clean === 'clerk@booran.com') {
+    return 'CLERK';
+  }
+
+  // 2. Metadata role from Supabase (with backward compatibility for OPERATIONS -> CLERK)
+  if (userMetaRole) {
+    if (userMetaRole === 'OPERATIONS') return 'CLERK';
+    if (VALID_ROLES.includes(userMetaRole as UserRole)) {
+      return userMetaRole as UserRole;
+    }
+  }
+
+  // 3. Email keyword heuristics
+  if (clean.includes('admin')) return 'ADMIN';
+  if (clean.includes('manager')) return 'MANAGER';
+  if (clean.includes('advisor')) return 'ADVISOR';
+  if (clean.includes('tech')) return 'TECHNICIAN';
+  if (clean.includes('clerk') || clean.includes('ops')) return 'CLERK';
+
+  return 'CLERK';
 }
 
 const STORAGE_KEY = 'booran_current_user';
@@ -71,4 +121,16 @@ export function getUserWithPermissions(user: User | null) {
     permissions: getPermissionsForRole(user.role),
     isAuthenticated: true,
   };
+}
+
+/** Map a role to its dev token string */
+export function getDevTokenForRole(role: UserRole): string {
+  switch (role) {
+    case 'ADMIN': return 'dev-admin-token';
+    case 'MANAGER': return 'dev-manager-token';
+    case 'CLERK': return 'dev-clerk-token';
+    case 'ADVISOR': return 'dev-advisor-token';
+    case 'TECHNICIAN': return 'dev-tech-token';
+    default: return 'dev-clerk-token';
+  }
 }

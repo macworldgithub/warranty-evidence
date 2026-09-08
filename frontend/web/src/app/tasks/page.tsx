@@ -279,7 +279,7 @@ export default function TasksPage() {
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white"
                   >
                     {mockUsers
-                      .filter((u) => u.role === 'OPERATIONS')
+                      .filter((u) => u.role === 'CLERK' || (u.role as string) === 'OPERATIONS')
                       .map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.firstName} {u.lastName}

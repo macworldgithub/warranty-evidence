@@ -11,11 +11,13 @@ export type DefectCategory =
   | 'SUSPENSION_STEERING'
   | 'BATTERY_HYBRID';
 
+import type { UserRole } from './auth';
+
 export interface CaseAssignee {
   id: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'OPERATIONS';
+  role: UserRole | string;
 }
 
 export interface WarrantyCase {

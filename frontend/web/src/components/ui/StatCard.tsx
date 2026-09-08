@@ -9,7 +9,7 @@ interface StatCardProps {
   change?: string;
   trend?: 'up' | 'down' | 'neutral';
   badgeText?: string;
-  badgeVariant?: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'gray';
+  badgeVariant?: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'gray' | 'amber' | 'slate';
   subtext?: string;
 }
 
