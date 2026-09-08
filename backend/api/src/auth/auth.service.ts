@@ -4,6 +4,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { UsersService } from '../users/users.service.js';
 import { getPermissionsForRole } from '../common/constants/permissions.constant.js';
 import type { AuthenticatedUser } from './interfaces/authenticated-user.interface.js';
+import { LoginDto } from './dto/login.dto.js';
 
 @Injectable()
 export class AuthService {
@@ -153,6 +154,58 @@ export class AuthService {
       status: user.status,
       assignedSites: user.assignedSites || [],
       permissions,
+    };
+  }
+
+  async login(loginDto: LoginDto): Promise<{
+    accessToken: string;
+    refreshToken?: string;
+    user: AuthenticatedUser;
+  }> {
+    const { email, password } = loginDto;
+
+    // 1. If Supabase client is configured, authenticate directly via Supabase Auth
+    if (this.isSupabaseConfigured && this.supabaseClient) {
+      const { data, error } = await this.supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error || !data.session) {
+        this.logger.warn(`Supabase sign-in failed for ${email}: ${error?.message}`);
+        throw new UnauthorizedException(error?.message || 'Invalid email or password');
+      }
+
+      const user = await this.getAuthenticatedUser(data.user.id, data.user.email);
+
+      return {
+        accessToken: data.session.access_token,
+        refreshToken: data.session.refresh_token,
+        user,
+      };
+    }
+
+    // 2. Development fallback mode: resolve user from database
+    const userDoc = await this.usersService.findByEmail(email);
+    if (!userDoc) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const user = await this.getAuthenticatedUser(userDoc.supabaseUserId, userDoc.email);
+    const devToken =
+      user.role === 'ADMIN'
+        ? 'dev-admin-token'
+        : user.role === 'MANAGER'
+        ? 'dev-manager-token'
+        : user.role === 'ADVISOR'
+        ? 'dev-advisor-token'
+        : user.role === 'TECHNICIAN'
+        ? 'dev-tech-token'
+        : 'dev-clerk-token';
+
+    return {
+      accessToken: devToken,
+      user,
     };
   }
 }

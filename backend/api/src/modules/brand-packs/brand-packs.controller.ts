@@ -9,6 +9,14 @@ import {
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { SupabaseAuthGuard } from '../../auth/guards/supabase-auth.guard.js';
 import { PermissionsGuard } from '../../auth/guards/permissions.guard.js';
 import { RequirePermissions } from '../../auth/decorators/require-permissions.decorator.js';
@@ -24,6 +32,8 @@ import {
 } from './dto/update-brand-pack.dto.js';
 import type { PackStatus } from './schemas/brand-pack.schema.js';
 
+@ApiTags('Brand Packs')
+@ApiBearerAuth('JWT-auth')
 @Controller('brand-packs')
 @UseGuards(SupabaseAuthGuard, PermissionsGuard)
 export class BrandPacksController {
@@ -34,6 +44,14 @@ export class BrandPacksController {
 
   @Get()
   @RequirePermissions('brand_packs.view')
+  @ApiOperation({ summary: 'List all warranty brand packs with status, brand, and site filtering' })
+  @ApiQuery({ name: 'brandId', required: false, description: 'Filter by Brand MongoDB ObjectId' })
+  @ApiQuery({ name: 'brandCode', required: false, description: 'Filter by OEM brand code (e.g. BYD)' })
+  @ApiQuery({ name: 'status', required: false, enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'], description: 'Filter by lifecycle status' })
+  @ApiQuery({ name: 'site', required: false, description: 'Filter by applicable dealership site code' })
+  @ApiResponse({ status: 200, description: 'Brand packs retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - requires brand_packs.view permission' })
   async findAll(
     @Query('brandId') brandId?: string,
     @Query('brandCode') brandCode?: string,
@@ -54,6 +72,12 @@ export class BrandPacksController {
 
   @Get('resolve')
   @RequirePermissions('brand_packs.view')
+  @ApiOperation({ summary: 'Resolve active published brand pack for technician mobile capture' })
+  @ApiQuery({ name: 'brandCode', required: true, description: 'OEM brand code (e.g. BYD)' })
+  @ApiQuery({ name: 'siteCode', required: false, description: 'Dealership rooftop site code (e.g. CRANBOURNE)' })
+  @ApiResponse({ status: 200, description: 'Active brand pack resolved successfully' })
+  @ApiResponse({ status: 400, description: 'Missing brandCode parameter' })
+  @ApiResponse({ status: 404, description: 'No active or fallback pack found' })
   async resolve(
     @Query('brandCode') brandCode?: string,
     @Query('siteCode') siteCode?: string,
@@ -70,6 +94,9 @@ export class BrandPacksController {
 
   @Get('brand/:brandId/versions')
   @RequirePermissions('brand_packs.view')
+  @ApiOperation({ summary: 'List all historical and draft version revisions for a brand' })
+  @ApiParam({ name: 'brandId', description: 'Brand ObjectId or OEM code' })
+  @ApiResponse({ status: 200, description: 'Version timeline retrieved successfully' })
   async findVersionsForBrand(@Param('brandId') brandId: string) {
     const versions = await this.packsService.findVersionsForBrand(brandId);
     return {
@@ -80,6 +107,10 @@ export class BrandPacksController {
 
   @Get(':id')
   @RequirePermissions('brand_packs.view')
+  @ApiOperation({ summary: 'Get full brand pack specification by ID' })
+  @ApiParam({ name: 'id', description: 'Brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Brand pack retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Brand pack not found' })
   async findOne(@Param('id') id: string) {
     const pack = await this.packsService.findById(id);
     return {
@@ -90,6 +121,9 @@ export class BrandPacksController {
 
   @Post()
   @RequirePermissions('brand_packs.create')
+  @ApiOperation({ summary: 'Initialize a new DRAFT brand pack' })
+  @ApiResponse({ status: 201, description: 'Draft brand pack created successfully' })
+  @ApiResponse({ status: 400, description: 'Validation error' })
   async create(
     @Body() createBrandPackDto: CreateBrandPackDto,
     @CurrentUser() user: AuthenticatedUser,
@@ -107,6 +141,11 @@ export class BrandPacksController {
 
   @Patch(':id')
   @RequirePermissions('brand_packs.update')
+  @ApiOperation({ summary: 'Update rules in a DRAFT brand pack (published packs are immutable)' })
+  @ApiParam({ name: 'id', description: 'Brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Draft brand pack updated successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden - cannot edit a PUBLISHED or ARCHIVED pack' })
+  @ApiResponse({ status: 404, description: 'Brand pack not found' })
   async update(
     @Param('id') id: string,
     @Body() updateBrandPackDto: UpdateBrandPackDto,
@@ -121,6 +160,10 @@ export class BrandPacksController {
 
   @Post(':id/clone')
   @RequirePermissions('brand_packs.create')
+  @ApiOperation({ summary: 'Clone an existing brand pack into an editable DRAFT with incremented version' })
+  @ApiParam({ name: 'id', description: 'Source brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 201, description: 'Brand pack cloned successfully' })
+  @ApiResponse({ status: 404, description: 'Source brand pack not found' })
   async clone(
     @Param('id') id: string,
     @Body() cloneBrandPackDto: CloneBrandPackDto,
@@ -140,6 +183,10 @@ export class BrandPacksController {
 
   @Post(':id/validate')
   @RequirePermissions('brand_packs.view')
+  @ApiOperation({ summary: 'Validate brand pack rule consistency, uniqueness, and naming templates' })
+  @ApiParam({ name: 'id', description: 'Brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Validation results returned' })
+  @ApiResponse({ status: 404, description: 'Brand pack not found' })
   async validate(@Param('id') id: string) {
     const result = await this.packsService.validateById(id);
     return {
@@ -150,6 +197,11 @@ export class BrandPacksController {
 
   @Post(':id/publish')
   @RequirePermissions('brand_packs.publish')
+  @ApiOperation({ summary: 'Validate and publish a DRAFT brand pack, archiving previous published versions' })
+  @ApiParam({ name: 'id', description: 'Brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Brand pack published successfully' })
+  @ApiResponse({ status: 400, description: 'Validation failed - cannot publish invalid pack' })
+  @ApiResponse({ status: 404, description: 'Brand pack not found' })
   async publish(
     @Param('id') id: string,
     @Body() publishBrandPackDto: PublishBrandPackDto,
@@ -169,6 +221,10 @@ export class BrandPacksController {
 
   @Post(':id/archive')
   @RequirePermissions('brand_packs.archive')
+  @ApiOperation({ summary: 'Archive an active brand pack' })
+  @ApiParam({ name: 'id', description: 'Brand pack MongoDB ObjectId' })
+  @ApiResponse({ status: 200, description: 'Brand pack archived successfully' })
+  @ApiResponse({ status: 404, description: 'Brand pack not found' })
   async archive(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
